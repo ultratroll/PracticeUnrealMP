@@ -2,6 +2,64 @@
 
 
 #include "SMPStaticMeshActor.h"
+#include "DrawDebugHelpers.h"
+
+void ASMPStaticMeshActor::UpdatePatrol(float DeltaTime)
+{
+	if (!bCanPatrol || PatrolPoints.Num() == 0)
+	{
+		return;
+	}
+
+	SetActorLocation(GetActorLocation() + DeltaTime * Speed * CurrentDirection);
+
+	// Check if its time to change target
+	if ((GetActorLocation()-StartLocation).Size() > CurrentMaxDistance)
+	{
+		// For a single patrol point, nothing else to do, stop patrolling
+		if (PatrolPoints.Num() == 1)
+		{
+			bCanPatrol = false;
+			return;
+		}
+
+		CurrentPatrolIndex++;
+		SetupPatrol(CurrentPatrolIndex);
+	}
+
+}
+
+void ASMPStaticMeshActor::SetupPatrol(int Index)
+{
+
+	CurrentPatrolIndex = Index;
+
+	if (!bCanPatrol || PatrolPoints.Num() == 0)
+	{
+		return;
+	}
+
+	StartLocation = GetActorLocation();
+
+	if (CurrentPatrolIndex >= PatrolPoints.Num() || CurrentPatrolIndex < 0)
+	{
+		CurrentPatrolIndex = 0;
+	}
+
+	EndLocation = OriginalLocation + PatrolPoints[CurrentPatrolIndex];
+
+	CurrentDirection = EndLocation - StartLocation;
+
+	DrawDebugSphere(GetWorld(), StartLocation, 5, 10, FColor::Blue, false, 2.0f);
+	DrawDebugSphere(GetWorld(), EndLocation, 5, 10, FColor::Red, false, 2.0f);
+		
+	CurrentMaxDistance = CurrentDirection.Size();
+
+	//UE_LOG(LogTemp, Warning, TEXT("Start Location is %s"), *StartLocation.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("End Location is %s"), *EndLocation.ToString());
+
+	CurrentDirection.Normalize();
+}
 
 ASMPStaticMeshActor::ASMPStaticMeshActor()
 {
@@ -9,9 +67,9 @@ ASMPStaticMeshActor::ASMPStaticMeshActor()
 
 	SetMobility(EComponentMobility::Movable);
 
-	Speed = FVector(5.0f,0.0f,0.0f);
-
-	TargetLocation = FVector(400.0f, 0.0f, 0.0f);
+	Speed = 5.0f;
+	bCanPatrol = true;
+	CurrentPatrolIndex = -1;
 }
 
 void ASMPStaticMeshActor::BeginPlay()
@@ -21,6 +79,10 @@ void ASMPStaticMeshActor::BeginPlay()
 	{
 		SetReplicates(true);
 		SetReplicateMovement(true);
+
+		OriginalLocation = GetActorLocation();
+
+		SetupPatrol(CurrentPatrolIndex);
 	}
 }
 
@@ -30,11 +92,6 @@ void ASMPStaticMeshActor::Tick(float DeltaTime)
 
 	if (HasAuthority())
 	{
-		FVector Location = GetActorLocation();
-		Location += DeltaTime * Speed;
-
-		//UE_LOG(LogTemp, Warning, TEXT("This is a message to yourself during runtime!"));
-
-		SetActorLocation(Location);
+		UpdatePatrol(DeltaTime);
 	}
 }

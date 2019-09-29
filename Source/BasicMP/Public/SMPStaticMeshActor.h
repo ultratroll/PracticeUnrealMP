@@ -15,13 +15,39 @@ class BASICMP_API ASMPStaticMeshActor : public AStaticMeshActor
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Moving Plattform")
-	FVector Speed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Moving Plattform", meta = (MakeEditWidget= true))
-	FVector TargetLocation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Moving Plattform")
+	uint8 bCanPatrol : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Moving Plattform")
+	int CurrentPatrolIndex;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Moving Plattform")
+	float Speed;
+
+	UPROPERTY(Transient)
+	FVector CurrentDirection;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Moving Plattform", meta = (MakeEditWidget = true))
+	TArray<FVector> PatrolPoints;
+
+private:
+
+	UPROPERTY()
+	float CurrentMaxDistance;
+
+	UPROPERTY()
+	FVector OriginalLocation;
+	FVector StartLocation;
+	FVector EndLocation;
+
+	void UpdatePatrol(float DeltaTime);
+
+	void SetupPatrol(int Index);
 
 public:
+	
 	ASMPStaticMeshActor();
 
 	virtual void BeginPlay() override;
