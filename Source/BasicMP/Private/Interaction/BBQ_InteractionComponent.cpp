@@ -14,14 +14,10 @@ UBBQ_InteractionComponent::UBBQ_InteractionComponent()
 	bAutoAddPrimitives = true;
 }
 
-// -----------------------------------------------------------------------------------------
-void UBBQ_InteractionComponent::BeginPlay()
+#if 0
+void UBBQ_InteractionComponent::SetupInteractionPrimitives()
 {
-	Super::BeginPlay();
-
-	CheckPrimitives();
-
-	// Testing
+	// Testing if needed
 	for (auto & PrimitiveComponent : PrimitiveComponents)
 	{
 		if (PrimitiveComponent == nullptr)
@@ -38,6 +34,33 @@ void UBBQ_InteractionComponent::BeginPlay()
 		PrimitiveComponent->OnComponentEndOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
 	}
 }
+#endif
+
+// -----------------------------------------------------------------------------------------
+void UBBQ_InteractionComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	CheckPrimitives();
+}
+
+
+#if 0 
+void UBBQ_InteractionComponent::BeginDestroy()
+{
+	for (auto & PrimitiveComponent : PrimitiveComponents)
+	{
+		if (PrimitiveComponent == nullptr)
+		{
+			UE_LOG(LogActor, Warning, TEXT("%s has provided the InteractionComponent with a null Primitive!"), *GetOwner()->GetFullName());
+			continue;
+		}
+
+		PrimitiveComponent->OnComponentBeginOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
+		PrimitiveComponent->OnComponentEndOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
+	}
+}
+#endif
 
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::CheckPrimitives()
@@ -100,6 +123,10 @@ void UBBQ_InteractionComponent::CheckPrimitives()
 		DefaultRenderCustomDepth.Add(primitive->bRenderCustomDepth);
 	}
 #endif
+
+#if 0
+	SetupInteractionPrimitives();
+#endif
 }
 
 // -----------------------------------------------------------------------------------------
@@ -110,6 +137,15 @@ void UBBQ_InteractionComponent::AddPrimitive(UPrimitiveComponent* PrimitiveCompo
 		PrimitiveComponents.AddUnique(PrimitiveComponent);
 		PrimitiveComponent->SetCollisionResponseToChannel(InteractionChannel, ECR_Block);
 	}
+
+#if 0
+	PrimitiveComponent->SetGenerateOverlapEvents(true);
+	PrimitiveComponent->OnComponentBeginOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
+	PrimitiveComponent->OnComponentEndOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
+	PrimitiveComponent->OnComponentBeginOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
+	PrimitiveComponent->OnComponentEndOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
+#endif
+
 }
 
 // -----------------------------------------------------------------------------------------
@@ -120,7 +156,7 @@ void UBBQ_InteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	// ...
 }
 
-#if WITH_EDITOR
+#if 0 //WITH_EDITOR
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
 {

@@ -41,15 +41,23 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText InteractableName;
 
-	// Populate if this interaction requires the use of item(s). If it does, a menu will pop up upon interaction
+	// Populate if this interaction requires the use of item(s).
 	// filled with items in this array.
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//TArray<FItemInteractionType>	PossibleItemInteractions;
 
+#if 0
+	// Testing. Makes sure to bind each primitive.
+	void SetupInteractionPrimitives();
+#endif
+
 protected:
 
-	// Called when the game starts
 	virtual void BeginPlay() override;
+
+#if 0
+	virtual void BeginDestroy() override;
+#endif
 
 	// Checks to see if any primitive components are explicitly defined.
 	// If not, lets use the children of the owner.
@@ -74,5 +82,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+#if 0
+	//TODO perhaps remove
 	void PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent) override;
+#endif
 };

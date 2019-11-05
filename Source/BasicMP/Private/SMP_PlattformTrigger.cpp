@@ -20,8 +20,8 @@ ASMP_PlattformTrigger::ASMP_PlattformTrigger()
 	TriggerVolume->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 
 	TriggerVolume->AttachToComponent(RootComponent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ASMP_PlattformTrigger::OnComponentBeginOverlap);
-	TriggerVolume->OnComponentEndOverlap.AddDynamic(this, &ASMP_PlattformTrigger::OnComponentEndOverlap);
+	//TriggerVolume->OnComponentBeginOverlap.AddDynamic(this, &ASMP_PlattformTrigger::OnComponentBeginOverlap);
+	//TriggerVolume->OnComponentEndOverlap.AddDynamic(this, &ASMP_PlattformTrigger::OnComponentEndOverlap);
 	TriggerVolume->RegisterComponent();
 
 }
