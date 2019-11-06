@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "SMP_Definitions.h"
 #include "BBQ_InteractionComponent.generated.h"
 
 
 class UTexture2D;
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BASICMP_API UBBQ_InteractionComponent : public UActorComponent
@@ -49,10 +51,8 @@ protected:
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//TArray<FItemInteractionType>	PossibleItemInteractions;
 
-#if 0
 	// Testing. Makes sure to bind each primitive.
 	void SetupInteractionPrimitives();
-#endif
 
 protected:
 
