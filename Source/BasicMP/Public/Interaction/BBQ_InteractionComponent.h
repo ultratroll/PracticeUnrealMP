@@ -31,6 +31,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bAutoAddPrimitives : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
+	uint8 bCanInteract : 1;
+
 	// Max distance the player is allowed to interact from.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxInteractDistance = 200;
@@ -64,6 +67,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Interactable")
 	void CheckPrimitives();
 
+	UFUNCTION()
+	void SetCurrentInteractableString();
+
 	// Get interactable elements
 	UFUNCTION(BlueprintCallable, Category = "Interactable")
 	TArray<UPrimitiveComponent *> & GetPrimitiveComponents() { return PrimitiveComponents; }
@@ -78,7 +84,17 @@ protected:
 	UFUNCTION()
 	void OnEndOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-public:	
+public:
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	bool IsInteractionEnabled() const { return bCanInteract != 0; }
+
+	UFUNCTION()
+	void HandleBeginOverLapPrimitive(UPrimitiveComponent *TouchedComponent);
+
+	UFUNCTION()
+	void HandleEndOverLapPrimitive(UPrimitiveComponent *TouchedComponent);
+
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

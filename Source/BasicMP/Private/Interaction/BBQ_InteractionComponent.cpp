@@ -3,6 +3,7 @@
 
 #include "BBQ_InteractionComponent.h"
 #include "Engine/Texture2D.h"
+#include "Core/SMP_PlayerController.h" // change this to BBQ
 
 // -----------------------------------------------------------------------------------------
 UBBQ_InteractionComponent::UBBQ_InteractionComponent()
@@ -12,6 +13,7 @@ UBBQ_InteractionComponent::UBBQ_InteractionComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	bAutoAddPrimitives = true;
+	bCanInteract = true;
 }
 
 #if 0
@@ -129,6 +131,11 @@ void UBBQ_InteractionComponent::CheckPrimitives()
 #endif
 }
 
+void UBBQ_InteractionComponent::SetCurrentInteractableString()
+{
+	// Change the string if needed
+}
+
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::AddPrimitive(UPrimitiveComponent* PrimitiveComponent)
 {
@@ -202,6 +209,11 @@ void UBBQ_InteractionComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* Ove
 // 			globalEventHandler->OnInteractionComponentBeginOverlap.Broadcast(OtherComp, this);
 // 		}
 // 	}
+
+	if (GetWorld() != nullptr)
+	{
+		HandleBeginOverLapPrimitive(OverlappedComponent);
+	}
 }
 
 // -----------------------------------------------------------------------------------------
@@ -225,5 +237,55 @@ void UBBQ_InteractionComponent::OnEndOverLapPrimitive(UPrimitiveComponent* Overl
 // 			globalEventHandler->OnInteractionComponentEndOverlap.Broadcast(OtherComp, this);
 // 		}
 // 	}
+
+	if (GetWorld() != nullptr)
+	{
+		HandleEndOverLapPrimitive(OverlappedComponent);
+	}
+}
+
+// -----------------------------------------------------------------------------------------
+void UBBQ_InteractionComponent::HandleBeginOverLapPrimitive(UPrimitiveComponent *TouchedComponent)
+{
+	if (true ) //InteractionTypeInstance != nullptr)
+	{
+		ASMP_PlayerController *MyPC = Cast<ASMP_PlayerController>(GetWorld()->GetFirstPlayerController()); // dot it bbq style
+
+		if (MyPC != nullptr)
+		{
+			//if (ShouldCheckTrace == false || (ShouldCheckTrace && TraceCheckSuccessful(pc)))
+			//{
+				if (IsInteractionEnabled())
+				{
+					//InteractionTypeInstance-> ; // For interaction type handling
+					SetCurrentInteractableString();
+					//OnPlayerBeginCursorOver.Broadcast();
+
+				}
+
+				//MyPC->BeginInteractionMouseOver(this, TouchedComponent); // here!
+			//}
+		}
+	}
+}
+
+// -----------------------------------------------------------------------------------------
+void UBBQ_InteractionComponent::HandleEndOverLapPrimitive(UPrimitiveComponent *TouchedComponent)
+{
+	if ( GetWorld() != nullptr) // &&  (InteractionTypeInstance != nullptr))
+	{
+		ASMP_PlayerController *MyPC = Cast<ASMP_PlayerController>(GetWorld()->GetFirstPlayerController()); // dot it bbq style
+
+		if (MyPC != nullptr)
+		{
+			if (IsInteractionEnabled())
+			{
+				//InteractionTypeInstance->EndMouseOver();
+				//OnPlayerEndCursorOver.Broadcast();
+			}
+
+			//pc->EndInteractionMouseOver(this, TouchedComponent); // here!
+		}
+	}
 }
 
