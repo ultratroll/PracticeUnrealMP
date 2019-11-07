@@ -18,7 +18,7 @@ class BASICMP_API UBBQ_InteractionComponent : public UActorComponent
 
 public:	
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable") // TODO: needs Transient, Replicated ?
 	TArray<UPrimitiveComponent*> PrimitiveComponents;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")

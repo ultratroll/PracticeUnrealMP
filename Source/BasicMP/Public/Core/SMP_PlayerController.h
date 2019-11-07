@@ -10,30 +10,30 @@
 /**
  * 
  */
-class UBBQ_InteractionComponent;
-class UPrimitiveComponent;
-
-// A pair of interaction and primitive
-USTRUCT()
-struct FInteractionPrimitive
-{
-	GENERATED_USTRUCT_BODY()
-
-private:
-
-	UBBQ_InteractionComponent* InteractionComponent; //TWeakObjectPtr<UBBQ_InteractionComponent> InteractionComponent;
-	UPrimitiveComponent* PrimitiveComponent; //TWeakObjectPtr<UPrimitiveComponent> PrimitiveComponent;
-
-public:
-
-	FInteractionPrimitive() : InteractionComponent(nullptr), PrimitiveComponent(nullptr) { }
-
-	FInteractionPrimitive(UBBQ_InteractionComponent* interactionComponent, UPrimitiveComponent* primitiveComponent)
-		: InteractionComponent(interactionComponent), PrimitiveComponent(primitiveComponent) { }
-
-	UBBQ_InteractionComponent* GetInteractionComponent() const { return InteractionComponent; } // .Get();
-	UPrimitiveComponent* GetPrimitiveComponent() const { return PrimitiveComponent; } // .Get();
-};
+// class UBBQ_InteractionComponent;
+// class UPrimitiveComponent;
+// 
+// // A pair of interaction and primitive
+// USTRUCT()
+// struct FInteractionPrimitive
+// {
+// 	GENERATED_USTRUCT_BODY()
+// 
+// private:
+// 
+// 	UBBQ_InteractionComponent* InteractionComponent; //TWeakObjectPtr<UBBQ_InteractionComponent> InteractionComponent;
+// 	UPrimitiveComponent* PrimitiveComponent; //TWeakObjectPtr<UPrimitiveComponent> PrimitiveComponent;
+// 
+// public:
+// 
+// 	FInteractionPrimitive() : InteractionComponent(nullptr), PrimitiveComponent(nullptr) { }
+// 
+// 	FInteractionPrimitive(UBBQ_InteractionComponent* interactionComponent, UPrimitiveComponent* primitiveComponent)
+// 		: InteractionComponent(interactionComponent), PrimitiveComponent(primitiveComponent) { }
+// 
+// 	UBBQ_InteractionComponent* GetInteractionComponent() const { return InteractionComponent; } // .Get();
+// 	UPrimitiveComponent* GetPrimitiveComponent() const { return PrimitiveComponent; } // .Get();
+// };
 
 UCLASS()
 class BASICMP_API ASMP_PlayerController : public APlayerController
@@ -49,29 +49,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteractionEnabled() const { return bCanInteract != 0; }
 
-	UFUNCTION()
-	void RegisterNearbyInteraction(UBBQ_InteractionComponent *InteractionComponent, UPrimitiveComponent* primitiveComponent);
-
-	UFUNCTION()
-	void UnregisterNearbyInteraction(UBBQ_InteractionComponent *InteractionComponent, UPrimitiveComponent* primitiveComponent);
+// 	UFUNCTION()
+// 	void RegisterNearbyInteraction(UBBQ_InteractionComponent *InteractionComponent, UPrimitiveComponent* primitiveComponent);
+// 
+// 	UFUNCTION()
+// 	void UnregisterNearbyInteraction(UBBQ_InteractionComponent *InteractionComponent, UPrimitiveComponent* primitiveComponent);
 
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bCanInteract : 1;
 
-	// overlapped interaction components.
-	UPROPERTY()
-	TArray<FInteractionPrimitive> OverlappedInteractionPrimitives;
-
-	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
-	UBBQ_InteractionComponent* CurrentInteraction;
+// 	// overlapped interaction components.
+// 	UPROPERTY()
+// 	TArray<FInteractionPrimitive> OverlappedInteractionPrimitives;
+// 
+// 	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
+// 	UBBQ_InteractionComponent* CurrentInteraction;
 
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
 	
 	// Updates the current interaction content, making sure to choose the closest one
 	bool UpdateClosestInteraction();
-
-
 };

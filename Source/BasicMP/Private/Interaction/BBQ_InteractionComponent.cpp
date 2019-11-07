@@ -186,6 +186,8 @@ void UBBQ_InteractionComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* Ove
 {
 	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnBeginOverLapPrimitive() - Owner: %s"), *(GetOwner()->GetFullName()));
 	
+	// We only want to register locally controlled
+
 // 	if (GetWorld() != nullptr)
 // 	{
 // 		AMyGameMode *gamemode = Cast<AMyGameMode>(GetWorld()->GetAuthGameMode());
