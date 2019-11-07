@@ -60,6 +60,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bCanInteract : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
+	uint8 bDebug : 1;
+
 // 	// overlapped interaction components.
 // 	UPROPERTY()
 // 	TArray<FInteractionPrimitive> OverlappedInteractionPrimitives;

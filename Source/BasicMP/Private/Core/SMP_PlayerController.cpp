@@ -73,7 +73,8 @@ bool ASMP_PlayerController::UpdateClosestInteraction()
 // 	}
 
 	// for the time being seems to work well
-	return 0;
+	if (bDebug ==0)
+		return 0;
 
 	FHitResult TraceResult(ForceInit);
 
