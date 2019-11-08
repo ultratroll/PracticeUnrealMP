@@ -76,9 +76,10 @@ void UBBQ_InteractAreaComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+#if 0
 	OnComponentBeginOverlap.AddDynamic(this, &UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive);
 	OnComponentEndOverlap.AddDynamic(this, &UBBQ_InteractAreaComponent::OnEndOverLapPrimitive);
-	
+#endif	
 }
 
 // -----------------------------------------------------------------------------------------
@@ -120,6 +121,7 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 	return true;
 }
 
+#if 0
 void UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive() - Owner: %s with %s"), *(GetOwner()->GetFullName()), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
@@ -131,6 +133,7 @@ void UBBQ_InteractAreaComponent::OnEndOverLapPrimitive(UPrimitiveComponent* Over
 	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnEndOverLapPrimitive() - Owner: %s with %s"), *(GetOwner()->GetFullName()), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
 	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnEndOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
 }
+#endif
 
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

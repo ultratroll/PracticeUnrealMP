@@ -3,6 +3,7 @@
 
 #include "BBQ_InteractionComponent.h"
 #include "Engine/Texture2D.h"
+#include "Interaction/BBQ_InteractAreaComponent.h"
 #include "Core/SMP_PlayerController.h" // change this to BBQ
 
 // -----------------------------------------------------------------------------------------
@@ -184,9 +185,17 @@ void UBBQ_InteractionComponent::PostEditChangeProperty(struct FPropertyChangedEv
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnBeginOverLapPrimitive() - Owner: %s with %s"), *(GetOwner()->GetFullName()), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
+	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnBeginOverLapPrimitive() - Owner: %s "), *(GetOwner()->GetFullName()));
+	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnBeginOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
+
+	UBBQ_InteractAreaComponent* InteractableArea = Cast<UBBQ_InteractAreaComponent>(OtherComp);
 	
-	// We only want to register locally controlled
+	if (InteractableArea)
+	{
+		InteractableArea->RegisterNearbyInteraction(this, OverlappedComponent);
+	}
+	
+// We only want to register locally controlled
 
 // 	if (GetWorld() != nullptr)
 // 	{
@@ -235,7 +244,16 @@ void UBBQ_InteractionComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* Ove
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::OnEndOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnEndOverLapPrimitive() - Owner: %s with %s"), *(GetOwner()->GetFullName()), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component" ));
+	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnEndOverLapPrimitive() - Owner: %s "), *(GetOwner()->GetFullName()));
+	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnEndOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
+
+	UBBQ_InteractAreaComponent* InteractableArea = Cast<UBBQ_InteractAreaComponent>(OtherComp);
+
+	if (InteractableArea)
+	{
+		InteractableArea->UnregisterNearbyInteraction(this, OverlappedComponent);
+	}
+
 // 	if (GetWorld() != nullptr)
 // 	{
 // 		AMyGameMode *gamemode = Cast<AMyGameMode>(GetWorld()->GetAuthGameMode());

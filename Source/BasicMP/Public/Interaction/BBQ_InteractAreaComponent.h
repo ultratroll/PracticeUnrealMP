@@ -9,14 +9,17 @@ class UBBQ_InteractionComponent;
 class UPrimitiveComponent;
 
 // A pair of interaction and primitive
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FInteractionPrimitive
 {
 	GENERATED_USTRUCT_BODY()
 
-private:
+protected:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	UBBQ_InteractionComponent* InteractionComponent; //TWeakObjectPtr<UBBQ_InteractionComponent> InteractionComponent;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	UPrimitiveComponent* PrimitiveComponent; //TWeakObjectPtr<UPrimitiveComponent> PrimitiveComponent;
 
 public:
@@ -61,7 +64,7 @@ protected:
 	uint8 bDebug : 1;
 
 	// overlapped interaction components.
-	UPROPERTY(Transient, Replicated)
+	UPROPERTY(Transient, Replicated, EditAnywhere, BlueprintReadWrite)
 	TArray<FInteractionPrimitive> OverlappedInteractionPrimitives;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
@@ -73,11 +76,15 @@ protected:
 	// Updates the current interaction content, making sure to choose the closest one
 	bool UpdateClosestInteraction();
 
+#if 0
+	// See if gonna leave or not
 	UFUNCTION()
 	void OnBeginOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	// See if gonna leave or not
 	UFUNCTION()
 	void OnEndOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+#endif
 
 public:	
 	// Called every frame
