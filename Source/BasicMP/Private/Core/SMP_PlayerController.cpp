@@ -43,11 +43,11 @@ bool ASMP_PlayerController::UpdateClosestInteraction()
 
 	if (TraceResult.GetActor() != nullptr)
 	{
-		UE_LOG(LogActor, Warning, TEXT("%s !"), *TraceResult.GetActor()->GetName());
+		//UE_LOG(LogActor, Warning, TEXT("%s !"), *TraceResult.GetActor()->GetName());
 	}
 	if (TraceResult.GetComponent() != nullptr)
 	{
-		UE_LOG(LogActor, Warning, TEXT("%s !"), *TraceResult.GetComponent()->GetName());
+		UE_LOG(LogActor, Warning, TEXT("ASMP_PlayerController::UpdateClosestInteraction--Comp %s !"), *TraceResult.GetComponent()->GetName());
 	}
 
 	return true;
