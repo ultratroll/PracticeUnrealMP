@@ -19,7 +19,7 @@ UBBQ_InteractAreaComponent::UBBQ_InteractAreaComponent(const FObjectInitializer&
 	bReplicates = true;
 	bAutoActivate = true;
 
-	SetCollisionResponseToAllChannels(ECR_Ignore);
+	//SetCollisionResponseToAllChannels(ECR_Ignore);
 	SetCollisionResponseToChannel(InteractionChannel, ECR_Overlap);
 }
 
@@ -76,7 +76,8 @@ void UBBQ_InteractAreaComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	OnComponentBeginOverlap.AddDynamic(this, &UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive);
+	OnComponentEndOverlap.AddDynamic(this, &UBBQ_InteractAreaComponent::OnEndOverLapPrimitive);
 	
 }
 
@@ -117,6 +118,18 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 // 	}
 
 	return true;
+}
+
+void UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive() - Owner: %s with %s"), *(GetOwner()->GetFullName()), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
+	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
+}
+
+void UBBQ_InteractAreaComponent::OnEndOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnEndOverLapPrimitive() - Owner: %s with %s"), *(GetOwner()->GetFullName()), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
+	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnEndOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
 }
 
 // -----------------------------------------------------------------------------------------
