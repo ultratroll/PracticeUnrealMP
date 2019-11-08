@@ -10,51 +10,6 @@ ASMP_PlayerController::ASMP_PlayerController() : Super()
 	bCanInteract = true;
 }
 
-// void ASMP_PlayerController::RegisterNearbyInteraction(UBBQ_InteractionComponent *InteractionComponent, UPrimitiveComponent* primitiveComponent)
-// {
-// 	if (InteractionComponent != nullptr && primitiveComponent != nullptr)
-// 	{
-// 		const auto& foundInteractionPrimitive = OverlappedInteractionPrimitives.FindByPredicate([&](const FInteractionPrimitive& interactionPrimitive)
-// 		{
-// 			return interactionPrimitive.GetInteractionComponent() == InteractionComponent && interactionPrimitive.GetPrimitiveComponent() == primitiveComponent;
-// 		});
-// 
-// 		if (foundInteractionPrimitive == nullptr)
-// 		{
-// 			OverlappedInteractionPrimitives.Add(FInteractionPrimitive(InteractionComponent, primitiveComponent));
-// 		}
-// 	}
-// }
-
-// void ASMP_PlayerController::UnregisterNearbyInteraction(UBBQ_InteractionComponent *InteractionComponent, UPrimitiveComponent* primitiveComponent)
-// {
-// 	for (int i = 0; i < OverlappedInteractionPrimitives.Num(); ++i)
-// 	{
-// 		const FInteractionPrimitive& interactionPrimitive = OverlappedInteractionPrimitives[i];
-// 
-// 		if (interactionPrimitive.GetInteractionComponent() == InteractionComponent
-// 			&& interactionPrimitive.GetPrimitiveComponent() == primitiveComponent)
-// 		{
-// 			OverlappedInteractionPrimitives.RemoveAt(i);
-// 
-// 			// Remove the UI if this is the last one in the list.
-// 			if (OverlappedInteractionPrimitives.Num() <= 0)
-// 			{
-// 				CurrentInteraction = nullptr;
-// 
-// #if 0
-// 				// Turn off interaction UI
-// 				UBBQ_InteractionWidget* InteractionUI = ;
-// 				InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
-// 				InteractionUI->SetInteractionVisuals(FText::GetEmpty(), nullptr, nullptr, -1, false);
-// 			
-// #endif
-// 			}
-// 			break;
-// 		}
-// 	}
-// }
-
 // -----------------------------------------------------------------------------------------
 void ASMP_PlayerController::PlayerTick(float DeltaTime)
 {

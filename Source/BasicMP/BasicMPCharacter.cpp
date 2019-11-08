@@ -1,6 +1,7 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #include "BasicMPCharacter.h"
+#include "Core/SMP_PlayerController.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -45,6 +46,20 @@ ABasicMPCharacter::ABasicMPCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+}
+
+void ABasicMPCharacter::PossessedBy(AController* NewController)
+{
+	// save the cast pointer
+	PlayerController = Cast<ASMP_PlayerController>(NewController);
+
+	if (IsValid(PlayerController))
+	{
+		// set our owner
+		SetOwner(PlayerController);
+
+		// TODO: save the player controller right away!
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////

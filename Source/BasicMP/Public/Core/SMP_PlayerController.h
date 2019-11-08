@@ -49,12 +49,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteractionEnabled() const { return bCanInteract != 0; }
 
-// 	UFUNCTION()
-// 	void RegisterNearbyInteraction(UBBQ_InteractionComponent *InteractionComponent, UPrimitiveComponent* primitiveComponent);
-// 
-// 	UFUNCTION()
-// 	void UnregisterNearbyInteraction(UBBQ_InteractionComponent *InteractionComponent, UPrimitiveComponent* primitiveComponent);
-
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
@@ -62,13 +56,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bDebug : 1;
-
-// 	// overlapped interaction components.
-// 	UPROPERTY()
-// 	TArray<FInteractionPrimitive> OverlappedInteractionPrimitives;
-// 
-// 	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
-// 	UBBQ_InteractionComponent* CurrentInteraction;
 
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;

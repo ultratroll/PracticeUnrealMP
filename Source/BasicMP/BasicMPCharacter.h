@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "BasicMPCharacter.generated.h"
 
+class ASMP_PlayerController;
+
 UCLASS(config=Game)
 class ABasicMPCharacter : public ACharacter
 {
@@ -20,6 +22,8 @@ class ABasicMPCharacter : public ACharacter
 	class UCameraComponent* FollowCamera;
 public:
 	ABasicMPCharacter();
+
+	virtual void PossessedBy(AController* NewController) override;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
@@ -59,6 +63,9 @@ protected:
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
 protected:
+
+	ASMP_PlayerController* PlayerController = NULL;
+
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface

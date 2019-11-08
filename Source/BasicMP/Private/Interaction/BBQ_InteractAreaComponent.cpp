@@ -3,6 +3,7 @@
 
 #include "BBQ_InteractAreaComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Core/SMP_PlayerController.h"
 #include "UnrealNetwork.h"
 #include "Components/SphereComponent.h"
 
@@ -96,7 +97,52 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 {
 	if (IsInteractionEnabled() && OverlappedInteractionPrimitives.Num() > 0)
 	{
-		;
+		// Perhaps save the player controller right away
+		ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
+		
+		if (MyPC)
+		{
+			TArray<FInteractionPrimitive> CurrentOverlappedInteractionPrimitives(OverlappedInteractionPrimitives);
+
+			// Clean up
+			CurrentOverlappedInteractionPrimitives.RemoveAll([&](const FInteractionPrimitive& interactionPrimitive)
+			{
+				return interactionPrimitive.GetInteractionComponent() == nullptr || interactionPrimitive.GetPrimitiveComponent() == nullptr;
+			});
+
+			FHitResult TraceResult(ForceInit);
+
+			// Viewport Size
+			int32 ViewportSizeX, ViewportSizeY;
+			MyPC->GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+			FVector2D CrosshairPosition = FVector2D(ViewportSizeX / 2, ViewportSizeY / 2);
+
+			bool bHit = MyPC->GetHitResultAtScreenPosition(CrosshairPosition, InteractionChannel, false, TraceResult);
+
+			if (bHit && TraceResult.GetComponent())
+			{
+				// Check if the hit primitive is one of the overlapping interactions.
+				const FInteractionPrimitive* closestInteractionPrimitive = OverlappedInteractionPrimitives.FindByPredicate([&](const FInteractionPrimitive& interactionPrimitive)
+				{
+					return interactionPrimitive.GetPrimitiveComponent() == TraceResult.GetComponent();
+				});
+
+				if (closestInteractionPrimitive != nullptr)
+				{
+					if (TraceResult.GetActor() != nullptr)
+					{
+						UE_LOG(LogActor, Warning, TEXT("SHOW UI FOR %s !"), *TraceResult.GetActor()->GetName());
+					}
+					if (TraceResult.GetComponent() != nullptr)
+					{
+						UE_LOG(LogActor, Warning, TEXT("SHOW UI FOR %s !"), *TraceResult.GetComponent()->GetName());
+					}
+
+					// TODO:: pass the current interaction to the player controller!
+				}
+			}
+		}
 	}
 
 // 	FHitResult TraceResult(ForceInit);
