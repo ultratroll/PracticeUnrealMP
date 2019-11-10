@@ -15,6 +15,8 @@ UBBQ_InteractionComponent::UBBQ_InteractionComponent()
 
 	bAutoAddPrimitives = true;
 	bCanInteract = true;
+
+	bReplicates = true;
 }
 
 void UBBQ_InteractionComponent::SetupInteractionPrimitives()
@@ -29,11 +31,14 @@ void UBBQ_InteractionComponent::SetupInteractionPrimitives()
 			continue;
 		}
 
-		PrimitiveComponent->SetGenerateOverlapEvents(true);
-		PrimitiveComponent->OnComponentBeginOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
-		PrimitiveComponent->OnComponentEndOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
-		PrimitiveComponent->OnComponentBeginOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
-		PrimitiveComponent->OnComponentEndOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
+		if (GetOwnerRole() == ROLE_Authority)
+		{
+			PrimitiveComponent->SetGenerateOverlapEvents(true);
+			PrimitiveComponent->OnComponentBeginOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
+			PrimitiveComponent->OnComponentEndOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
+			PrimitiveComponent->OnComponentBeginOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
+			PrimitiveComponent->OnComponentEndOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
+		}
 	}
 }
 
@@ -144,11 +149,14 @@ void UBBQ_InteractionComponent::AddPrimitive(UPrimitiveComponent* PrimitiveCompo
 		PrimitiveComponent->SetCollisionResponseToChannel(InteractionChannel, ECR_Block);
 	}
 
-	PrimitiveComponent->SetGenerateOverlapEvents(true);
-	PrimitiveComponent->OnComponentBeginOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
-	PrimitiveComponent->OnComponentEndOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
-	PrimitiveComponent->OnComponentBeginOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
-	PrimitiveComponent->OnComponentEndOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		PrimitiveComponent->SetGenerateOverlapEvents(true);
+		PrimitiveComponent->OnComponentBeginOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
+		PrimitiveComponent->OnComponentEndOverlap.RemoveDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
+		PrimitiveComponent->OnComponentBeginOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnBeginOverLapPrimitive);
+		PrimitiveComponent->OnComponentEndOverlap.AddDynamic(this, &UBBQ_InteractionComponent::OnEndOverLapPrimitive);
+	}
 }
 
 // -----------------------------------------------------------------------------------------
