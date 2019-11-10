@@ -7,33 +7,7 @@
 #include "GameFramework/PlayerController.h"
 #include "SMP_PlayerController.generated.h"
 
-/**
- * 
- */
-// class UBBQ_InteractionComponent;
-// class UPrimitiveComponent;
-// 
-// // A pair of interaction and primitive
-// USTRUCT()
-// struct FInteractionPrimitive
-// {
-// 	GENERATED_USTRUCT_BODY()
-// 
-// private:
-// 
-// 	UBBQ_InteractionComponent* InteractionComponent; //TWeakObjectPtr<UBBQ_InteractionComponent> InteractionComponent;
-// 	UPrimitiveComponent* PrimitiveComponent; //TWeakObjectPtr<UPrimitiveComponent> PrimitiveComponent;
-// 
-// public:
-// 
-// 	FInteractionPrimitive() : InteractionComponent(nullptr), PrimitiveComponent(nullptr) { }
-// 
-// 	FInteractionPrimitive(UBBQ_InteractionComponent* interactionComponent, UPrimitiveComponent* primitiveComponent)
-// 		: InteractionComponent(interactionComponent), PrimitiveComponent(primitiveComponent) { }
-// 
-// 	UBBQ_InteractionComponent* GetInteractionComponent() const { return InteractionComponent; } // .Get();
-// 	UPrimitiveComponent* GetPrimitiveComponent() const { return PrimitiveComponent; } // .Get();
-// };
+class UBBQ_InteractionComponent;
 
 UCLASS()
 class BASICMP_API ASMP_PlayerController : public APlayerController
@@ -56,6 +30,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bDebug : 1;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
+	UBBQ_InteractionComponent* CurrentInteractable;
 
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
