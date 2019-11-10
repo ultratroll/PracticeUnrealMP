@@ -161,6 +161,15 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 					// TODO:: pass the current interaction to the player controller!
 				}
 			}
+			else
+			{
+				UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
+				if (InteractionUI)
+				{
+					InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
+					InteractionUI->SetInteractionVisuals(FText::GetEmpty(), nullptr);
+				}
+			}
 		}
 	}
 
