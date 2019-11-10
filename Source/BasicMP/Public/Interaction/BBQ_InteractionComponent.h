@@ -27,6 +27,10 @@ public:
 	// Sets default values for this component's properties
 	UBBQ_InteractionComponent();
 
+	UTexture2D* GetIcon() const { return InteractionIcon; }
+
+	FText GetText() const { return InteractableName; }
+
 protected:
 
 	// If enabled, will try to autoadd primitives

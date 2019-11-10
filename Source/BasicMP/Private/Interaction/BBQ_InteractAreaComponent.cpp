@@ -3,6 +3,8 @@
 
 #include "BBQ_InteractAreaComponent.h"
 #include "DrawDebugHelpers.h"
+#include "UI/BBQ_InteractionWidget.h"
+#include "Interaction/BBQ_InteractionComponent.h"
 #include "Core/SMP_PlayerController.h"
 #include "UnrealNetwork.h"
 #include "Components/SphereComponent.h"
@@ -59,13 +61,17 @@ void UBBQ_InteractAreaComponent::UnregisterNearbyInteraction(UBBQ_InteractionCom
 			{
 				CurrentInteraction = nullptr;
 
-#if 0
-				// Turn off interaction UI
-				UBBQ_InteractionWidget* InteractionUI = ;
-				InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
-				InteractionUI->SetInteractionVisuals(FText::GetEmpty(), nullptr, nullptr, -1, false);
-
-#endif
+				ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
+				if (MyPC)
+				{
+					// Turn off interaction UI
+					UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
+					if (InteractionUI)
+					{
+						InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
+						InteractionUI->SetInteractionVisuals(FText::GetEmpty(), nullptr);
+					}
+				}
 			}
 			break;
 		}
@@ -123,13 +129,26 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 			if (bHit && TraceResult.GetComponent())
 			{
 				// Check if the hit primitive is one of the overlapping interactions.
-				const FInteractionPrimitive* closestInteractionPrimitive = OverlappedInteractionPrimitives.FindByPredicate([&](const FInteractionPrimitive& interactionPrimitive)
+				const FInteractionPrimitive* ClosestInteractionPrimitive = OverlappedInteractionPrimitives.FindByPredicate([&](const FInteractionPrimitive& interactionPrimitive)
 				{
 					return interactionPrimitive.GetPrimitiveComponent() == TraceResult.GetComponent();
 				});
 
-				if (closestInteractionPrimitive != nullptr)
+				if (ClosestInteractionPrimitive != nullptr)
 				{
+					// Turn off interaction UI
+					UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
+					if (InteractionUI)
+					{
+						InteractionUI->SetVisibility(ESlateVisibility::HitTestInvisible);
+						InteractionUI->SetInteractionVisuals(ClosestInteractionPrimitive->GetInteractionComponent()->GetText(), ClosestInteractionPrimitive->GetInteractionComponent()->GetIcon());
+
+						FVector2D ScreenLocation;
+						MyPC->ProjectWorldLocationToScreen(ClosestInteractionPrimitive->GetPrimitiveComponent()->GetComponentLocation(), ScreenLocation);
+
+						InteractionUI->SetPositionInViewport(ScreenLocation);
+					}
+
 					if (TraceResult.GetActor() != nullptr)
 					{
 						UE_LOG(LogActor, Warning, TEXT("SHOW UI FOR %s !"), *TraceResult.GetActor()->GetName());

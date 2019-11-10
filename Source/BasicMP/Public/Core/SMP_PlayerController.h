@@ -8,6 +8,7 @@
 #include "SMP_PlayerController.generated.h"
 
 class UBBQ_InteractionComponent;
+class UBBQ_InteractionWidget;
 
 UCLASS()
 class BASICMP_API ASMP_PlayerController : public APlayerController
@@ -19,6 +20,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	TEnumAsByte<ECollisionChannel> InteractionChannel;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
+	UBBQ_InteractionWidget* InteractionUI;
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteractionEnabled() const { return bCanInteract != 0; }
