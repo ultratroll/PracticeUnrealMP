@@ -146,6 +146,11 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 						FVector2D ScreenLocation;
 						MyPC->ProjectWorldLocationToScreen(ClosestInteractionPrimitive->GetPrimitiveComponent()->GetComponentLocation(), ScreenLocation);
 
+						float MouseX;
+						float MouseY;
+						MyPC->GetMousePosition(MouseX, MouseY);
+
+						ScreenLocation += FVector2D(CrosshairPosition.X - ScreenLocation.X, CrosshairPosition.Y - ScreenLocation.Y);
 						InteractionUI->SetPositionInViewport(ScreenLocation);
 					}
 
