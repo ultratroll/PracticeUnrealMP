@@ -22,8 +22,8 @@ UBBQ_InteractAreaComponent::UBBQ_InteractAreaComponent(const FObjectInitializer&
 	bReplicates = true;
 	bAutoActivate = true;
 
-	//SetCollisionResponseToAllChannels(ECR_Ignore);
-	SetCollisionResponseToChannel(InteractionChannel, ECR_Overlap);
+	SetCollisionResponseToAllChannels(ECR_Overlap);
+	//SetCollisionResponseToChannel(InteractionChannel, ECR_Overlap);
 }
 
 // -----------------------------------------------------------------------------------------
