@@ -50,6 +50,8 @@ ABasicMPCharacter::ABasicMPCharacter()
 
 void ABasicMPCharacter::PossessedBy(AController* NewController)
 {
+	Super::PossessedBy(NewController);
+
 	// save the cast pointer
 	PlayerController = Cast<ASMP_PlayerController>(NewController);
 
