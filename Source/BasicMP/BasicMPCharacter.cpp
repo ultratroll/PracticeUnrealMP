@@ -106,7 +106,7 @@ void ABasicMPCharacter::TryBeginInteraction()
 {
 	if (IsLocallyControlled())
 	{
-		InteractionArea->TryBeginInteraction();
+		InteractionArea->Server_TryBeginInteraction();
 	}
 }
 
@@ -114,7 +114,7 @@ void ABasicMPCharacter::TryEndInteraction()
 {
 	if (IsLocallyControlled())
 	{
-		InteractionArea->TryEndInteraction();
+		InteractionArea->Server_TryEndInteraction();
 	}
 }
 

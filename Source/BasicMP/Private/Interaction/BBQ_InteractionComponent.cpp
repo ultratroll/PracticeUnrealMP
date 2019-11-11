@@ -20,6 +20,16 @@ UBBQ_InteractionComponent::UBBQ_InteractionComponent()
 	bReplicates = true;
 }
 
+void UBBQ_InteractionComponent::TryBeginInteraction()
+{
+	Server_TryBeginInteraction();
+}
+
+void UBBQ_InteractionComponent::TryEndInteraction()
+{
+	Server_TryEndInteraction();
+}
+
 void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation()
 {
 	if (IsInteractionEnabled() && !IsInteracting()) // TODO: PENDING to validate team

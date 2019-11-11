@@ -78,21 +78,28 @@ void UBBQ_InteractAreaComponent::UnregisterNearbyInteraction(UBBQ_InteractionCom
 	}
 }
 
+#if 0
 void UBBQ_InteractAreaComponent::TryBeginInteraction()
 {
 	if (IsValid(CurrentInteraction))
-		CurrentInteraction->Server_TryBeginInteraction();
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- Try interact with %s"), *CurrentInteraction->GetName());
+		CurrentInteraction->TryBeginInteraction();
+	}
 	else
+	{
 		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
+	}
 }
 
 void UBBQ_InteractAreaComponent::TryEndInteraction()
 {
 	if (IsValid(CurrentInteraction))
-		CurrentInteraction->Server_TryEndInteraction();
+		CurrentInteraction->TryEndInteraction();
 	else
 		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
 }
+#endif
 
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::BeginPlay()
@@ -172,6 +179,7 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 						InteractionUI->SetPositionInViewport(ScreenLocation);
 					}
 
+#if 0
 					if (TraceResult.GetActor() != nullptr)
 					{
 						UE_LOG(LogActor, Warning, TEXT("SHOW UI FOR %s !"), *TraceResult.GetActor()->GetName());
@@ -180,7 +188,7 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 					{
 						UE_LOG(LogActor, Warning, TEXT("SHOW UI FOR %s !"), *TraceResult.GetComponent()->GetName());
 					}
-
+#endif
 					// TODO:: pass the current interaction to the player controller!
 				}
 			}
@@ -215,6 +223,37 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 // 		UE_LOG(LogActor, Warning, TEXT("%s !"), *TraceResult.GetComponent()->GetName());
 // 	}
 
+	return true;
+}
+
+void UBBQ_InteractAreaComponent::Server_TryEndInteraction_Implementation()
+{
+	if (IsValid(CurrentInteraction))
+		CurrentInteraction->TryEndInteraction();
+	else
+		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
+}
+
+bool UBBQ_InteractAreaComponent::Server_TryEndInteraction_Validate()
+{
+	return true;
+}
+
+void UBBQ_InteractAreaComponent::Server_TryBeginInteraction_Implementation()
+{
+	if (IsValid(CurrentInteraction))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- Try interact with %s"), *CurrentInteraction->GetName());
+		CurrentInteraction->TryBeginInteraction();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
+	}
+}
+
+bool UBBQ_InteractAreaComponent::Server_TryBeginInteraction_Validate()
+{
 	return true;
 }
 

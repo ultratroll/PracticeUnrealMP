@@ -59,9 +59,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	UBBQ_InteractionComponent* GetCurrentInteraction() { return CurrentInteraction; }
 
+#if 0
 	void TryBeginInteraction();
 
 	void TryEndInteraction();
+#endif
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_TryBeginInteraction();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_TryEndInteraction();
 
 protected:
 

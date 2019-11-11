@@ -41,11 +41,11 @@ public:
 
 	FText GetText() const { return InteractableName; }
 
-	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
-	void Server_TryBeginInteraction();
+	UFUNCTION(BlueprintCallable)
+	void TryBeginInteraction();
 
-	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
-	void Server_TryEndInteraction();
+	UFUNCTION(BlueprintCallable)
+	void TryEndInteraction();
 
 protected:
 
@@ -76,6 +76,12 @@ protected:
 
 	// Testing. Makes sure to bind each primitive.
 	void SetupInteractionPrimitives();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_TryBeginInteraction();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_TryEndInteraction();
 
 protected:
 
