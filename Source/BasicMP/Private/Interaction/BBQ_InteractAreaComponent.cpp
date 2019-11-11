@@ -16,7 +16,7 @@ UBBQ_InteractAreaComponent::UBBQ_InteractAreaComponent(const FObjectInitializer&
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.TickInterval = 0.1f;
 
-	SphereRadius = 250.0f;
+	SphereRadius = 350.0f;
 
 	bCanInteract = true;
 	bReplicates = true;
@@ -76,6 +76,22 @@ void UBBQ_InteractAreaComponent::UnregisterNearbyInteraction(UBBQ_InteractionCom
 			break;
 		}
 	}
+}
+
+void UBBQ_InteractAreaComponent::TryBeginInteraction()
+{
+	if (IsValid(CurrentInteraction))
+		CurrentInteraction->Server_TryBeginInteraction();
+	else
+		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
+}
+
+void UBBQ_InteractAreaComponent::TryEndInteraction()
+{
+	if (IsValid(CurrentInteraction))
+		CurrentInteraction->Server_TryEndInteraction();
+	else
+		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
 }
 
 // -----------------------------------------------------------------------------------------
@@ -205,12 +221,6 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 void UBBQ_InteractAreaComponent::Server_SetCurrentInteraction_Implementation(UBBQ_InteractionComponent* NewInteraction)
 {
 	CurrentInteraction = NewInteraction;
-
-	ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
-	if (MyPC)
-	{
-		MyPC->CurrentInteraction = CurrentInteraction;
-	}
 }
 
 bool UBBQ_InteractAreaComponent::Server_SetCurrentInteraction_Validate(UBBQ_InteractionComponent* NewInteraction)

@@ -4,6 +4,7 @@
 #include "Core/SMP_PlayerController.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
+#include "Interaction/BBQ_InteractAreaComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -43,6 +44,9 @@ ABasicMPCharacter::ABasicMPCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	InteractionArea = CreateDefaultSubobject<UBBQ_InteractAreaComponent>(TEXT("InteractionArea"));
+	InteractionArea->SetupAttachment(RootComponent);
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -100,22 +104,17 @@ void ABasicMPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 void ABasicMPCharacter::TryBeginInteraction()
 {
-
-	// TODO could do it here, with the component of area interaction in code
-	ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
-	if (MyPC)
+	if (IsLocallyControlled())
 	{
-		MyPC->TryBeginInteraction(); // remove this TODO
+		InteractionArea->TryBeginInteraction();
 	}
 }
 
 void ABasicMPCharacter::TryEndInteraction()
 {
-	// TODO could do it here, with the component of area interaction in code
-	ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
-	if (MyPC)
+	if (IsLocallyControlled())
 	{
-		MyPC->TryEndInteraction(); // remove this TODO
+		InteractionArea->TryEndInteraction();
 	}
 }
 

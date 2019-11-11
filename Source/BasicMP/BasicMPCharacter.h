@@ -7,6 +7,7 @@
 #include "BasicMPCharacter.generated.h"
 
 class ASMP_PlayerController;
+class UBBQ_InteractAreaComponent;
 
 UCLASS(config=Game)
 class ABasicMPCharacter : public ACharacter
@@ -69,6 +70,9 @@ protected:
 protected:
 
 	ASMP_PlayerController* PlayerController = NULL;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Interaction)
+	UBBQ_InteractAreaComponent* InteractionArea;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 

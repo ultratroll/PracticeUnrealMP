@@ -17,10 +17,6 @@ class BASICMP_API ASMP_PlayerController : public APlayerController
 
 public:
 
-	// Probably to be deleted !
-	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
-	UBBQ_InteractionComponent* CurrentInteraction;
-
 	ASMP_PlayerController();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
@@ -28,10 +24,6 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
 	UBBQ_InteractionWidget* InteractionUI;
-
-	void TryBeginInteraction();
-
-	void TryEndInteraction();
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteractionEnabled() const { return bCanInteract != 0; }
@@ -44,12 +36,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bDebug : 1;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
-	UBBQ_InteractionComponent* CurrentInteractable;
-
 	// Begin PlayerController interface
 	virtual void PlayerTick(float DeltaTime) override;
 	
 	// Updates the current interaction content, making sure to choose the closest one
-	bool UpdateClosestInteraction();
+	bool UpdateTracing();
 };

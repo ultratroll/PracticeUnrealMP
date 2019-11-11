@@ -56,9 +56,16 @@ public:
 	UFUNCTION()
 	void UnregisterNearbyInteraction(UBBQ_InteractionComponent *InteractionComponent, UPrimitiveComponent* primitiveComponent);
 
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	UBBQ_InteractionComponent* GetCurrentInteraction() { return CurrentInteraction; }
+
+	void TryBeginInteraction();
+
+	void TryEndInteraction();
+
 protected:
 
-	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Interactable")
+	UPROPERTY(Transient, Replicated)
 	UBBQ_InteractionComponent* CurrentInteraction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")

@@ -10,39 +10,18 @@ ASMP_PlayerController::ASMP_PlayerController() : Super()
 	bCanInteract = true;
 }
 
-void ASMP_PlayerController::TryBeginInteraction()
-{
-	if (CurrentInteractable)
-	{
-		CurrentInteractable->Server_TryBeginInteraction(); // THANOS never getting here
-	}
-}
-
-void ASMP_PlayerController::TryEndInteraction()
-{
-	if (CurrentInteractable)
-	{
-		CurrentInteractable->Server_TryEndInteraction();
-	}
-}
-
 // -----------------------------------------------------------------------------------------
 void ASMP_PlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
 	if (IsInteractionEnabled())
-		UpdateClosestInteraction();
+		UpdateTracing();
 }
 
 // -----------------------------------------------------------------------------------------
-bool ASMP_PlayerController::UpdateClosestInteraction()
+bool ASMP_PlayerController::UpdateTracing()
 {
-// 	if (IsInteractionEnabled() && OverlappedInteractionPrimitives.Num() > 0)
-// 	{
-// 		;
-// 	}
-
 	// for the time being seems to work well
 	if (bDebug ==0)
 		return 0;
