@@ -59,7 +59,7 @@ void UBBQ_InteractAreaComponent::UnregisterNearbyInteraction(UBBQ_InteractionCom
 			// Remove the UI if this is the last one in the list.
 			if (OverlappedInteractionPrimitives.Num() <= 0)
 			{
-				CurrentInteraction = nullptr;
+				Server_SetCurrentInteraction(nullptr);
 
 				ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
 				if (MyPC)
@@ -136,6 +136,12 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 
 				if (ClosestInteractionPrimitive != nullptr)
 				{
+					// TODO check when we REALLY need to update the ui
+					if (CurrentInteraction != ClosestInteractionPrimitive->GetInteractionComponent())
+					{
+						Server_SetCurrentInteraction(ClosestInteractionPrimitive->GetInteractionComponent());
+					}
+
 					// Turn off interaction UI
 					UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
 					if (InteractionUI)
@@ -196,6 +202,22 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 	return true;
 }
 
+void UBBQ_InteractAreaComponent::Server_SetCurrentInteraction_Implementation(UBBQ_InteractionComponent* NewInteraction)
+{
+	CurrentInteraction = NewInteraction;
+
+	ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
+	if (MyPC)
+	{
+		MyPC->CurrentInteraction = CurrentInteraction;
+	}
+}
+
+bool UBBQ_InteractAreaComponent::Server_SetCurrentInteraction_Validate(UBBQ_InteractionComponent* NewInteraction)
+{
+	return true;
+}
+
 #if 0
 void UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -218,6 +240,6 @@ void UBBQ_InteractAreaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	// TODO check when i finish the replication part
 	//DOREPLIFETIME(UBBQ_InteractAreaComponent, OverlappedInteractionPrimitives);
 	DOREPLIFETIME_CONDITION(UBBQ_InteractAreaComponent, OverlappedInteractionPrimitives, COND_OwnerOnly);
-
+	DOREPLIFETIME_CONDITION(UBBQ_InteractAreaComponent, CurrentInteraction, COND_OwnerOnly);
 }
 

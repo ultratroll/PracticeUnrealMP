@@ -40,6 +40,7 @@ class BASICMP_API UBBQ_InteractAreaComponent : public USphereComponent
 	GENERATED_BODY()
 
 public:	
+
 	// Sets default values for this component's properties
 	UBBQ_InteractAreaComponent(const FObjectInitializer& ObjectInitializer);
 
@@ -57,6 +58,9 @@ public:
 
 protected:
 
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Interactable")
+	UBBQ_InteractionComponent* CurrentInteraction;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bCanInteract : 1;
 
@@ -67,14 +71,15 @@ protected:
 	UPROPERTY(Transient, Replicated, EditAnywhere, BlueprintReadWrite)
 	TArray<FInteractionPrimitive> OverlappedInteractionPrimitives;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
-	UBBQ_InteractionComponent* CurrentInteraction;
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	// Updates the current interaction content, making sure to choose the closest one
 	bool UpdateClosestInteraction();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_SetCurrentInteraction(UBBQ_InteractionComponent* NewInteraction);
 
 #if 0
 	// See if gonna leave or not

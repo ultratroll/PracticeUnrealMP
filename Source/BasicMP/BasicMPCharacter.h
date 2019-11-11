@@ -35,6 +35,10 @@ public:
 
 protected:
 
+	void TryBeginInteraction();
+
+	void TryEndInteraction();
+
 	/** Resets HMD orientation in VR. */
 	void OnResetVR();
 

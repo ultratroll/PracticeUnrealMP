@@ -10,6 +10,8 @@
 
 class UTexture2D;
 
+/** Delegate to report whenever an interactable begins or ends interaction. */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBBQ_OnInteraction, bool, bIsInteracting);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BASICMP_API UBBQ_InteractionComponent : public UActorComponent
@@ -24,6 +26,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	TEnumAsByte<ECollisionChannel> InteractionChannel;
 
+	/** To be called when the interaction begins, only called on server (stuff that should happen on all machines, like the movement of a door opening or closing). */
+	UPROPERTY(BlueprintAssignable, Category = "Interactable")
+	FBBQ_OnInteraction OnInteractionForServerDelegate;
+
+	/** To be called when the interaction begins, only called on client (stuff like showing an vfx is only intended to be seen by the player that interacted). */
+	UPROPERTY(BlueprintAssignable, Category = "Interactable")
+	FBBQ_OnInteraction OnInteractionForClientDelegate;
+
 	// Sets default values for this component's properties
 	UBBQ_InteractionComponent();
 
@@ -31,14 +41,23 @@ public:
 
 	FText GetText() const { return InteractableName; }
 
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_TryBeginInteraction();
+
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_TryEndInteraction();
+
 protected:
 
 	// If enabled, will try to autoadd primitives
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable")
 	uint8 bAutoAddPrimitives : 1;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
+	UPROPERTY(Replicated)
 	uint8 bCanInteract : 1;
+
+	UPROPERTY(Replicated)
+	uint8 bIsInteracting : 1;
 
 	// Max distance the player is allowed to interact from.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -93,12 +112,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteractionEnabled() const { return bCanInteract != 0; }
 
-	UFUNCTION()
-	void HandleBeginOverLapPrimitive(UPrimitiveComponent *TouchedComponent);
-
-	UFUNCTION()
-	void HandleEndOverLapPrimitive(UPrimitiveComponent *TouchedComponent);
-
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	bool IsInteracting() const { return bIsInteracting != 0; }
+	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

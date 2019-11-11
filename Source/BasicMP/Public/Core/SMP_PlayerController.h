@@ -16,6 +16,11 @@ class BASICMP_API ASMP_PlayerController : public APlayerController
 	GENERATED_BODY()
 
 public:
+
+	// Probably to be deleted !
+	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
+	UBBQ_InteractionComponent* CurrentInteraction;
+
 	ASMP_PlayerController();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
@@ -23,6 +28,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Interactable")
 	UBBQ_InteractionWidget* InteractionUI;
+
+	void TryBeginInteraction();
+
+	void TryEndInteraction();
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteractionEnabled() const { return bCanInteract != 0; }

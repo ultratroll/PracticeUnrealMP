@@ -10,6 +10,22 @@ ASMP_PlayerController::ASMP_PlayerController() : Super()
 	bCanInteract = true;
 }
 
+void ASMP_PlayerController::TryBeginInteraction()
+{
+	if (CurrentInteractable)
+	{
+		CurrentInteractable->Server_TryBeginInteraction(); // THANOS never getting here
+	}
+}
+
+void ASMP_PlayerController::TryEndInteraction()
+{
+	if (CurrentInteractable)
+	{
+		CurrentInteractable->Server_TryEndInteraction();
+	}
+}
+
 // -----------------------------------------------------------------------------------------
 void ASMP_PlayerController::PlayerTick(float DeltaTime)
 {

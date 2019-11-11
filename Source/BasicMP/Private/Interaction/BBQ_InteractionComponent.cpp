@@ -3,6 +3,7 @@
 
 #include "BBQ_InteractionComponent.h"
 #include "Engine/Texture2D.h"
+#include "UnrealNetwork.h"
 #include "Interaction/BBQ_InteractAreaComponent.h"
 #include "Core/SMP_PlayerController.h" // change this to BBQ
 
@@ -11,12 +12,46 @@ UBBQ_InteractionComponent::UBBQ_InteractionComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	bAutoAddPrimitives = true;
 	bCanInteract = true;
 
 	bReplicates = true;
+}
+
+void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation()
+{
+	if (IsInteractionEnabled() && !IsInteracting()) // TODO: PENDING to validate team
+	{
+		bIsInteracting = true;
+
+		OnInteractionForServerDelegate.Broadcast(bIsInteracting);
+
+		// Netmulticast to clients
+	}
+}
+
+bool UBBQ_InteractionComponent::Server_TryBeginInteraction_Validate()
+{
+	return true;
+}
+
+void UBBQ_InteractionComponent::Server_TryEndInteraction_Implementation()
+{
+	if (IsInteractionEnabled() && IsInteracting())
+	{
+		bIsInteracting = false;
+
+		OnInteractionForServerDelegate.Broadcast(bIsInteracting);
+
+		// Netmulticast to clients
+	}
+}
+
+bool UBBQ_InteractionComponent::Server_TryEndInteraction_Validate()
+{
+	return true;
 }
 
 void UBBQ_InteractionComponent::SetupInteractionPrimitives()
@@ -200,10 +235,9 @@ void UBBQ_InteractionComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* Ove
 	
 	if (InteractableArea)
 	{
+		SetCurrentInteractableString();
 		InteractableArea->RegisterNearbyInteraction(this, OverlappedComponent);
 	}
-	
-// We only want to register locally controlled
 
 // 	if (GetWorld() != nullptr)
 // 	{
@@ -242,11 +276,6 @@ void UBBQ_InteractionComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* Ove
 // 			globalEventHandler->OnInteractionComponentBeginOverlap.Broadcast(OtherComp, this);
 // 		}
 // 	}
-
-	if (GetWorld() != nullptr)
-	{
-		HandleBeginOverLapPrimitive(OverlappedComponent);
-	}
 }
 
 // -----------------------------------------------------------------------------------------
@@ -279,55 +308,14 @@ void UBBQ_InteractionComponent::OnEndOverLapPrimitive(UPrimitiveComponent* Overl
 // 			globalEventHandler->OnInteractionComponentEndOverlap.Broadcast(OtherComp, this);
 // 		}
 // 	}
-
-	if (GetWorld() != nullptr)
-	{
-		HandleEndOverLapPrimitive(OverlappedComponent);
-	}
 }
 
 // -----------------------------------------------------------------------------------------
-void UBBQ_InteractionComponent::HandleBeginOverLapPrimitive(UPrimitiveComponent *TouchedComponent)
+void UBBQ_InteractionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	if (true ) //InteractionTypeInstance != nullptr)
-	{
-		ASMP_PlayerController *MyPC = Cast<ASMP_PlayerController>(GetWorld()->GetFirstPlayerController()); // dot it bbq style
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-		if (MyPC != nullptr)
-		{
-			//if (ShouldCheckTrace == false || (ShouldCheckTrace && TraceCheckSuccessful(pc)))
-			//{
-				if (IsInteractionEnabled())
-				{
-					//InteractionTypeInstance-> ; // For interaction type handling
-					SetCurrentInteractableString();
-					//OnPlayerBeginCursorOver.Broadcast();
-
-				}
-
-				//MyPC->BeginInteractionMouseOver(this, TouchedComponent); // here!
-			//}
-		}
-	}
-}
-
-// -----------------------------------------------------------------------------------------
-void UBBQ_InteractionComponent::HandleEndOverLapPrimitive(UPrimitiveComponent *TouchedComponent)
-{
-	if ( GetWorld() != nullptr) // &&  (InteractionTypeInstance != nullptr))
-	{
-		ASMP_PlayerController *MyPC = Cast<ASMP_PlayerController>(GetWorld()->GetFirstPlayerController()); // dot it bbq style
-
-		if (MyPC != nullptr)
-		{
-			if (IsInteractionEnabled())
-			{
-				//InteractionTypeInstance->EndMouseOver();
-				//OnPlayerEndCursorOver.Broadcast();
-			}
-
-			//pc->EndInteractionMouseOver(this, TouchedComponent); // here!
-		}
-	}
+	DOREPLIFETIME(UBBQ_InteractionComponent, bCanInteract);
+	DOREPLIFETIME(UBBQ_InteractionComponent, bIsInteracting);
 }
 

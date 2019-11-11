@@ -91,8 +91,33 @@ void ABasicMPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 
 	// VR headset functionality
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &ABasicMPCharacter::OnResetVR);
+
+	// Interaction
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ABasicMPCharacter::TryBeginInteraction);
+	PlayerInputComponent->BindAction("Interact", IE_Released, this, &ABasicMPCharacter::TryEndInteraction);
 }
 
+
+void ABasicMPCharacter::TryBeginInteraction()
+{
+
+	// TODO could do it here, with the component of area interaction in code
+	ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
+	if (MyPC)
+	{
+		MyPC->TryBeginInteraction(); // remove this TODO
+	}
+}
+
+void ABasicMPCharacter::TryEndInteraction()
+{
+	// TODO could do it here, with the component of area interaction in code
+	ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
+	if (MyPC)
+	{
+		MyPC->TryEndInteraction(); // remove this TODO
+	}
+}
 
 void ABasicMPCharacter::OnResetVR()
 {
