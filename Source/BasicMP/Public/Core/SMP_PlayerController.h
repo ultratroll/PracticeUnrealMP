@@ -28,6 +28,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteractionEnabled() const { return bCanInteract != 0; }
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
+	int Team;
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")

@@ -45,6 +45,8 @@ public:
 
 	float ShouldCheckForMaxDistance() const { return bCheckForMaxDistance; }
 
+	int GetRequiredTeam() const { return Requiredteam; }
+
 	UFUNCTION(BlueprintCallable)
 	void TryBeginInteraction();
 
@@ -76,6 +78,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText InteractableName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int Requiredteam;
 
 	// Populate if this interaction requires the use of item(s).
 	// TODO: filled with items in this array. Turned off for the moment since its not critical for the test build, will add to BBQ soon.

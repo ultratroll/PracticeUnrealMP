@@ -168,7 +168,17 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 					// Also check if its inside the interaction area radius
 					bInsideDistance = (bInsideDistance)? (SphereRadius >= InteractionCandidate->GetMaxInteractDistance()) : false;
 
-					bool bCorrectTeam = true;
+					/*
+					// We are gonna get the player team here from the player state !
+					AShooterPlayerState* MyPlayerState = Cast<AShooterPlayerState>(GetPlayerState());
+					if (MyPlayerState != NULL)
+					{
+						// Team
+						int Team = (float)MyPlayerState->GetTeamNum();
+					}
+					*/
+					// We are gonna save it in the player controller for testing only
+					bool bCorrectTeam = InteractionCandidate->GetRequiredTeam() == MyPC->Team;
 
 					return (InteractionPrimitive.GetPrimitiveComponent() == TraceResult.GetComponent()) && bInsideDistance && bCorrectTeam;
 				});
