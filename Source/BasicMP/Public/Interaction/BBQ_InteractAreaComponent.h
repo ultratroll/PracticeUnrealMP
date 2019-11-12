@@ -86,7 +86,6 @@ protected:
 	UPROPERTY(Transient, Replicated, EditAnywhere, BlueprintReadWrite)
 	TArray<FInteractionPrimitive> OverlappedInteractionPrimitives;
 
-
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
@@ -95,6 +94,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 	void Server_SetCurrentInteraction(UBBQ_InteractionComponent* NewInteraction);
+
+	// Resets the current interaction and hides its UI
+	void DisableCurrentInteraction();
 
 #if 0
 	// See if gonna leave or not

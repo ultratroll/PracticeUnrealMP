@@ -16,7 +16,7 @@ UBBQ_InteractAreaComponent::UBBQ_InteractAreaComponent(const FObjectInitializer&
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.TickInterval = 0.1f;
 
-	SphereRadius = 350.0f;
+	SphereRadius = 500.0f;
 
 	bCanInteract = true;
 	bReplicates = true;
@@ -79,6 +79,7 @@ void UBBQ_InteractAreaComponent::UnregisterNearbyInteraction(UBBQ_InteractionCom
 }
 
 #if 0
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::TryBeginInteraction()
 {
 	if (IsValid(CurrentInteraction))
@@ -157,14 +158,27 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 			if (bHit && TraceResult.GetComponent())
 			{
 				// Check if the hit primitive is one of the overlapping interactions.
-				const FInteractionPrimitive* ClosestInteractionPrimitive = OverlappedInteractionPrimitives.FindByPredicate([&](const FInteractionPrimitive& interactionPrimitive)
+				const FInteractionPrimitive* ClosestInteractionPrimitive = OverlappedInteractionPrimitives.FindByPredicate([&](const FInteractionPrimitive& InteractionPrimitive)
 				{
-					return interactionPrimitive.GetPrimitiveComponent() == TraceResult.GetComponent();
+					UBBQ_InteractionComponent* InteractionCandidate= InteractionPrimitive.GetInteractionComponent();
+					// TODO check team and distance
+					bool bInsideDistance = (InteractionCandidate->ShouldCheckForMaxDistance())?
+						InteractionCandidate->GetMaxInteractDistance() >= FVector::Distance(GetOwner()->GetActorLocation(), InteractionPrimitive.GetPrimitiveComponent()->GetComponentLocation()) : true;
+
+					// Also check if its inside the interaction area radius
+					bInsideDistance = (bInsideDistance)? (SphereRadius >= InteractionCandidate->GetMaxInteractDistance()) : false;
+
+					bool bCorrectTeam = true;
+
+					return (InteractionPrimitive.GetPrimitiveComponent() == TraceResult.GetComponent()) && bInsideDistance && bCorrectTeam;
 				});
 
 				if (ClosestInteractionPrimitive != nullptr)
 				{
 					Server_SetCurrentInteraction(ClosestInteractionPrimitive->GetInteractionComponent());
+
+					UE_LOG(LogActor, Warning, TEXT("DISTANCE! %f !"), FVector::Distance(GetOwner()->GetActorLocation(), ClosestInteractionPrimitive->GetPrimitiveComponent()->GetComponentLocation()));
+
 
 					// Turn off interaction UI
 					UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
@@ -192,17 +206,14 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 #endif
 					// TODO:: pass the current interaction to the player controller!
 				}
+				else 
+				{
+					DisableCurrentInteraction();
+				}
 			}
 			else
 			{
-				UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
-				if (InteractionUI)
-				{
-					InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
-					InteractionUI->SetInteractionVisuals(FText::GetEmpty(), nullptr);
-					Server_SetCurrentInteraction(nullptr);
-				}
-				//
+				DisableCurrentInteraction();
 			}
 		}
 	}
@@ -210,6 +221,22 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 	return true;
 }
 
+// -----------------------------------------------------------------------------------------
+void UBBQ_InteractAreaComponent::DisableCurrentInteraction()
+{
+	// TODO:: Perhaps save the player controller right away
+	ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
+	// No legal target, lets shut off the UI and the current interaction
+	UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
+	if (InteractionUI)
+	{
+		InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
+		InteractionUI->SetInteractionVisuals(FText::GetEmpty(), nullptr);
+		Server_SetCurrentInteraction(nullptr);
+	}
+}
+
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::Server_TryEndInteraction_Implementation()
 {
 	if (IsValid(CurrentInteraction))
@@ -218,11 +245,13 @@ void UBBQ_InteractAreaComponent::Server_TryEndInteraction_Implementation()
 		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
 }
 
+// -----------------------------------------------------------------------------------------
 bool UBBQ_InteractAreaComponent::Server_TryEndInteraction_Validate()
 {
 	return true;
 }
 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::Server_TryBeginInteraction_Implementation()
 {
 	if (IsValid(CurrentInteraction))
@@ -236,28 +265,33 @@ void UBBQ_InteractAreaComponent::Server_TryBeginInteraction_Implementation()
 	}
 }
 
+// -----------------------------------------------------------------------------------------
 bool UBBQ_InteractAreaComponent::Server_TryBeginInteraction_Validate()
 {
 	return true;
 }
 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::Server_SetCurrentInteraction_Implementation(UBBQ_InteractionComponent* NewInteraction)
 {
 	CurrentInteraction = NewInteraction;
 }
 
+// -----------------------------------------------------------------------------------------
 bool UBBQ_InteractAreaComponent::Server_SetCurrentInteraction_Validate(UBBQ_InteractionComponent* NewInteraction)
 {
 	return true;
 }
 
 #if 0
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive() - Owner: %s with %s"), *(GetOwner()->GetFullName()), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
 	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
 }
 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::OnEndOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnEndOverLapPrimitive() - Owner: %s with %s"), *(GetOwner()->GetFullName()), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));

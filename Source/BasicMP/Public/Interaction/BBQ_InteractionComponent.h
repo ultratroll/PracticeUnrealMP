@@ -41,6 +41,10 @@ public:
 
 	FText GetText() const { return InteractableName; }
 
+	float GetMaxInteractDistance() const { return MaxInteractDistance; }
+
+	float ShouldCheckForMaxDistance() const { return bCheckForMaxDistance; }
+
 	UFUNCTION(BlueprintCallable)
 	void TryBeginInteraction();
 
@@ -59,9 +63,13 @@ protected:
 	UPROPERTY(Replicated)
 	uint8 bIsInteracting : 1;
 
+	// If true, the interactive checks for the max distance, by default true
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable")
+	uint8 bCheckForMaxDistance : 1;
+
 	// Max distance the player is allowed to interact from.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float MaxInteractDistance = 200;
+	float MaxInteractDistance = 350.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D * InteractionIcon;
@@ -70,7 +78,7 @@ protected:
 	FText InteractableName;
 
 	// Populate if this interaction requires the use of item(s).
-	// filled with items in this array.
+	// TODO: filled with items in this array. Turned off for the moment since its not critical for the test build, will add to BBQ soon.
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	//TArray<FItemInteractionType>	PossibleItemInteractions;
 

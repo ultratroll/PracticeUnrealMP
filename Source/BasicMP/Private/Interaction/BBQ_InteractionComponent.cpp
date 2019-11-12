@@ -14,22 +14,25 @@ UBBQ_InteractionComponent::UBBQ_InteractionComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
+	bReplicates = true;
 	bAutoAddPrimitives = true;
 	bCanInteract = true;
-
-	bReplicates = true;
+	bCheckForMaxDistance = true;
 }
 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::TryBeginInteraction()
 {
 	Server_TryBeginInteraction();
 }
 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::TryEndInteraction()
 {
 	Server_TryEndInteraction();
 }
 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation()
 {
 	if (IsInteractionEnabled() && !IsInteracting()) // TODO: PENDING to validate team
@@ -42,11 +45,13 @@ void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation()
 	}
 }
 
+// -----------------------------------------------------------------------------------------
 bool UBBQ_InteractionComponent::Server_TryBeginInteraction_Validate()
 {
 	return true;
 }
 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::Server_TryEndInteraction_Implementation()
 {
 	if (IsInteractionEnabled() && IsInteracting())
@@ -59,11 +64,13 @@ void UBBQ_InteractionComponent::Server_TryEndInteraction_Implementation()
 	}
 }
 
+// -----------------------------------------------------------------------------------------
 bool UBBQ_InteractionComponent::Server_TryEndInteraction_Validate()
 {
 	return true;
 }
 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::SetupInteractionPrimitives()
 {
 	// Testing if needed
@@ -97,6 +104,7 @@ void UBBQ_InteractionComponent::BeginPlay()
 
 
 #if 0 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::BeginDestroy()
 {
 	for (auto & PrimitiveComponent : PrimitiveComponents)
@@ -180,6 +188,7 @@ void UBBQ_InteractionComponent::CheckPrimitives()
 #endif
 }
 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::SetCurrentInteractableString()
 {
 	// Change the string if needed
