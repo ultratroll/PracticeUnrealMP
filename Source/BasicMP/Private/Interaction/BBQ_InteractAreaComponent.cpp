@@ -117,7 +117,12 @@ void UBBQ_InteractAreaComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsInteractionEnabled())
+	//Controller && Controller->IsLocalController()
+
+	// Perhaps save the player controller right away
+	ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
+
+	if (IsInteractionEnabled() && MyPC && MyPC->IsLocalController())
 		UpdateClosestInteraction();
 }
 
@@ -199,29 +204,12 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 				{
 					InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
 					InteractionUI->SetInteractionVisuals(FText::GetEmpty(), nullptr);
+					//Server_SetCurrentInteraction(nullptr);
 				}
+				//
 			}
 		}
 	}
-
-// 	FHitResult TraceResult(ForceInit);
-// 
-// 	// Viewport Size
-// 	int32 ViewportSizeX, ViewportSizeY;
-// 	GetViewportSize(ViewportSizeX, ViewportSizeY);
-// 
-// 	FVector2D CrosshairPosition = FVector2D(ViewportSizeX / 2, ViewportSizeY / 2);
-// 
-// 	bool bHit = GetHitResultAtScreenPosition(CrosshairPosition, InteractionChannel, false, TraceResult);
-// 
-// 	if (TraceResult.GetActor() != nullptr)
-// 	{
-// 		UE_LOG(LogActor, Warning, TEXT("%s !"), *TraceResult.GetActor()->GetName());
-// 	}
-// 	if (TraceResult.GetComponent() != nullptr)
-// 	{
-// 		UE_LOG(LogActor, Warning, TEXT("%s !"), *TraceResult.GetComponent()->GetName());
-// 	}
 
 	return true;
 }
