@@ -164,11 +164,7 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 
 				if (ClosestInteractionPrimitive != nullptr)
 				{
-					// TODO check when we REALLY need to update the ui
-					if (CurrentInteraction != ClosestInteractionPrimitive->GetInteractionComponent())
-					{
-						Server_SetCurrentInteraction(ClosestInteractionPrimitive->GetInteractionComponent());
-					}
+					Server_SetCurrentInteraction(ClosestInteractionPrimitive->GetInteractionComponent());
 
 					// Turn off interaction UI
 					UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
@@ -204,7 +200,7 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 				{
 					InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
 					InteractionUI->SetInteractionVisuals(FText::GetEmpty(), nullptr);
-					//Server_SetCurrentInteraction(nullptr);
+					Server_SetCurrentInteraction(nullptr);
 				}
 				//
 			}
