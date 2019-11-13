@@ -10,12 +10,10 @@
 // -----------------------------------------------------------------------------------------
 UBBQ_InteractionComponent::UBBQ_InteractionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
 
 	bReplicates = true;
-	bAutoAddPrimitives = true;
+	bAutoAddPrimitives = false;
 	bCanInteract = true;
 	bCheckForMaxDistance = true;
 }
@@ -35,13 +33,13 @@ void UBBQ_InteractionComponent::TryEndInteraction()
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation()
 {
-	if (IsInteractionEnabled() && !IsInteracting()) // TODO: PENDING to validate team
+	if (IsInteractionEnabled() && !IsInteracting())
 	{
 		bIsInteracting = true;
 
 		OnInteractionForServerDelegate.Broadcast(bIsInteracting);
 
-		// Netmulticast to clients
+		// TODO: Removed temporaly, Netmulticast to clients
 	}
 }
 
@@ -60,7 +58,7 @@ void UBBQ_InteractionComponent::Server_TryEndInteraction_Implementation()
 
 		OnInteractionForServerDelegate.Broadcast(bIsInteracting);
 
-		// Netmulticast to clients
+		// TODO: Removed temporaly, Netmulticast to clients
 	}
 }
 
@@ -79,7 +77,6 @@ void UBBQ_InteractionComponent::SetupInteractionPrimitives()
 		if (PrimitiveComponent == nullptr)
 		{
 			UE_LOG(LogActor, Warning, TEXT("%s has provided the InteractionComponent with a null Primitive!"), *GetOwner()->GetFullName());
-
 			continue;
 		}
 
@@ -247,8 +244,8 @@ void UBBQ_InteractionComponent::PostEditChangeProperty(struct FPropertyChangedEv
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnBeginOverLapPrimitive() - Owner: %s "), *(GetOwner()->GetFullName()));
-	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnBeginOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
+	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnBeginOverLapPrimitive() - Owner: %s "), *(GetOwner()->GetFullName()));
+	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnBeginOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
 
 	UBBQ_InteractAreaComponent* InteractableArea = Cast<UBBQ_InteractAreaComponent>(OtherComp);
 	
@@ -257,51 +254,13 @@ void UBBQ_InteractionComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* Ove
 		SetCurrentInteractableString();
 		InteractableArea->RegisterNearbyInteraction(this, OverlappedComponent);
 	}
-
-// 	if (GetWorld() != nullptr)
-// 	{
-// 		AMyGameMode *gamemode = Cast<AMyGameMode>(GetWorld()->GetAuthGameMode());
-// 		if (gamemode != nullptr)
-// 		{
-// 			A_PlayerPartyController* Controller = gamemode->GetPlayerController();
-// 			A_PlayerPawn* PlayerPawn = Controller != nullptr ? Controller->GetPlayerPawn() : nullptr;
-// 
-// 			if (PlayerPawn != nullptr && OtherComp == PlayerPawn->GetInteractionCollider()) // && ! Controller IsPlayerInUIOrPauseMode ?
-// 			{
-// 				// Only call this in the case of InteractionCollider on PlayerPawn
-// 				HandleBeginMouseCursorOver(OverlappedComponent);
-// 			}
-// 			// Always broadcast overlap began - could be SOEComponent overlap
-// 			UBBQ_GlobalEventHandler * globalEventHandler = UBBQ_GameLibrary::GetGlobalEventHandler(this);
-// 			globalEventHandler->OnInteractionComponentBeginOverlap.Broadcast(OtherComp, this);
-// 		}
-// 	}
-
-// 	if (GetWorld() != nullptr)
-// 	{
-// 		AMyGameMode *gamemode = Cast<AMyGameMode>(GetWorld()->GetAuthGameMode());
-// 		if (gamemode != nullptr)
-// 		{
-// 			A_PlayerPartyController* Controller = gamemode->GetPlayerController();
-// 			A_PlayerPawn* PlayerPawn = Controller != nullptr ? Controller->GetPlayerPawn() : nullptr;
-// 
-// 			if (PlayerPawn != nullptr && OtherComp == PlayerPawn->GetInteractionCollider()) // && ! Controller IsPlayerInUIOrPauseMode ?
-// 			{
-// 				// Only call this in the case of InteractionCollider on PlayerPawn
-// 				HandleBeginMouseCursorOver(OverlappedComponent);
-// 			}
-// 			// Always broadcast overlap began - could be SOEComponent overlap
-// 			UBBQ_GlobalEventHandler * globalEventHandler = UBBQ_GameLibrary::GetGlobalEventHandler(this);
-// 			globalEventHandler->OnInteractionComponentBeginOverlap.Broadcast(OtherComp, this);
-// 		}
-// 	}
 }
 
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::OnEndOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnEndOverLapPrimitive() - Owner: %s "), *(GetOwner()->GetFullName()));
-	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnEndOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
+	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnEndOverLapPrimitive() - Owner: %s "), *(GetOwner()->GetFullName()));
+	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractionComponent::OnEndOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
 
 	UBBQ_InteractAreaComponent* InteractableArea = Cast<UBBQ_InteractAreaComponent>(OtherComp);
 
@@ -309,24 +268,6 @@ void UBBQ_InteractionComponent::OnEndOverLapPrimitive(UPrimitiveComponent* Overl
 	{
 		InteractableArea->UnregisterNearbyInteraction(this, OverlappedComponent);
 	}
-
-// 	if (GetWorld() != nullptr)
-// 	{
-// 		AMyGameMode *gamemode = Cast<AMyGameMode>(GetWorld()->GetAuthGameMode());
-// 		if (gamemode != nullptr)
-// 		{
-// 			A_PlayerPawn* A_PlayerPawn = gamemode->GetPlayerController()->GetPlayerPawn();
-// 
-// 			if (A_PlayerPawn != nullptr && OtherComp == A_PlayerPawn->GetInteractionCollider())
-// 			{
-// 				// Only call this in the case of InteractionCollider on PlayerPawn
-// 				HandleEndMouseCursorOver(OverlappedComponent);
-// 			}
-// 			// Always broadcast overlap ended 
-// 			UBBQ_GlobalEventHandler * globalEventHandler = UBBQ_GameLibrary::GetGlobalEventHandler(this);
-// 			globalEventHandler->OnInteractionComponentEndOverlap.Broadcast(OtherComp, this);
-// 		}
-// 	}
 }
 
 // -----------------------------------------------------------------------------------------

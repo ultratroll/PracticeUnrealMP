@@ -20,7 +20,7 @@ class BASICMP_API UBBQ_InteractionComponent : public UActorComponent
 
 public:	
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable") // TODO: needs Transient, Replicated ?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	TArray<UPrimitiveComponent*> PrimitiveComponents;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
@@ -45,7 +45,7 @@ public:
 
 	float ShouldCheckForMaxDistance() const { return bCheckForMaxDistance; }
 
-	int GetRequiredTeam() const { return Requiredteam; }
+	int GetRequiredTeam() const { return RequiredTeam; }
 
 	UFUNCTION(BlueprintCallable)
 	void TryBeginInteraction();
@@ -65,6 +65,9 @@ protected:
 	UPROPERTY(Replicated)
 	uint8 bIsInteracting : 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
+	uint8 bShowUIWhenInactive : 1;
+
 	// If true, the interactive checks for the max distance, by default true
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable")
 	uint8 bCheckForMaxDistance : 1;
@@ -80,7 +83,7 @@ protected:
 	FText InteractableName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int Requiredteam;
+	int RequiredTeam;
 
 	// Populate if this interaction requires the use of item(s).
 	// TODO: filled with items in this array. Turned off for the moment since its not critical for the test build, will add to BBQ soon.
@@ -129,10 +132,16 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	bool CanShowUIWhenInactive() const { return bShowUIWhenInactive != 0; }
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteractionEnabled() const { return bCanInteract != 0; }
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteracting() const { return bIsInteracting != 0; }
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void BP_SetInteractionEnabled(bool bEnabled) { bCanInteract = bEnabled; }
 	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

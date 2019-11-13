@@ -7,6 +7,8 @@
 class USphereComponent;
 class UBBQ_InteractionComponent;
 class UPrimitiveComponent;
+class ASMP_PlayerController;
+class UBBQ_InteractionWidget;
 
 // A pair of interaction and primitive
 USTRUCT(BlueprintType)
@@ -49,7 +51,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteractionEnabled() const { return bCanInteract != 0; }
-
+	
 	UFUNCTION()
 	void RegisterNearbyInteraction(UBBQ_InteractionComponent *InteractionComponent, UPrimitiveComponent* primitiveComponent);
 
@@ -72,6 +74,10 @@ public:
 	void Server_TryEndInteraction();
 
 protected:
+
+	ASMP_PlayerController* MyPC;
+
+	//UBBQ_InteractionWidget* InteractionUI;
 
 	UPROPERTY(Transient, Replicated)
 	UBBQ_InteractionComponent* CurrentInteraction;

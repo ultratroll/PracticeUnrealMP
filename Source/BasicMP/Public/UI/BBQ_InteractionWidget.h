@@ -16,5 +16,5 @@ class BASICMP_API UBBQ_InteractionWidget : public UUserWidget
 
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction")
-	void SetInteractionVisuals(const FText& Text, UTexture2D* Icon);
+	void BP_SetInteractionVisuals(const FText& Text, UTexture2D* Icon, bool InteractionEnabled = true);
 };

@@ -63,8 +63,6 @@ void ABasicMPCharacter::PossessedBy(AController* NewController)
 	{
 		// set our owner
 		SetOwner(PlayerController);
-
-		// TODO: save the player controller right away!
 	}
 }
 

@@ -23,7 +23,6 @@ UBBQ_InteractAreaComponent::UBBQ_InteractAreaComponent(const FObjectInitializer&
 	bAutoActivate = true;
 
 	SetCollisionResponseToAllChannels(ECR_Overlap);
-	//SetCollisionResponseToChannel(InteractionChannel, ECR_Overlap);
 }
 
 // -----------------------------------------------------------------------------------------
@@ -61,16 +60,11 @@ void UBBQ_InteractAreaComponent::UnregisterNearbyInteraction(UBBQ_InteractionCom
 			{
 				Server_SetCurrentInteraction(nullptr);
 
-				ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
-				if (MyPC)
+				UBBQ_InteractionWidget* InteractionUI = (MyPC) ? MyPC->InteractionUI : nullptr;
+				if (InteractionUI)
 				{
-					// Turn off interaction UI
-					UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
-					if (InteractionUI)
-					{
-						InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
-						InteractionUI->SetInteractionVisuals(FText::GetEmpty(), nullptr);
-					}
+					InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
+					InteractionUI->BP_SetInteractionVisuals(FText::GetEmpty(), nullptr);
 				}
 			}
 			break;
@@ -107,6 +101,8 @@ void UBBQ_InteractAreaComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
+
 #if 0
 	OnComponentBeginOverlap.AddDynamic(this, &UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive);
 	OnComponentEndOverlap.AddDynamic(this, &UBBQ_InteractAreaComponent::OnEndOverLapPrimitive);
@@ -118,11 +114,6 @@ void UBBQ_InteractAreaComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//Controller && Controller->IsLocalController()
-
-	// Perhaps save the player controller right away
-	ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
-
 	if (IsInteractionEnabled() && MyPC && MyPC->IsLocalController())
 		UpdateClosestInteraction();
 }
@@ -131,10 +122,7 @@ void UBBQ_InteractAreaComponent::TickComponent(float DeltaTime, ELevelTick TickT
 bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 {
 	if (IsInteractionEnabled() && OverlappedInteractionPrimitives.Num() > 0)
-	{
-		// Perhaps save the player controller right away
-		ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
-		
+	{	
 		if (MyPC)
 		{
 			TArray<FInteractionPrimitive> CurrentOverlappedInteractionPrimitives(OverlappedInteractionPrimitives);
@@ -161,7 +149,7 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 				const FInteractionPrimitive* ClosestInteractionPrimitive = OverlappedInteractionPrimitives.FindByPredicate([&](const FInteractionPrimitive& InteractionPrimitive)
 				{
 					UBBQ_InteractionComponent* InteractionCandidate= InteractionPrimitive.GetInteractionComponent();
-					// TODO check team and distance
+					
 					bool bInsideDistance = (InteractionCandidate->ShouldCheckForMaxDistance())?
 						InteractionCandidate->GetMaxInteractDistance() >= FVector::Distance(GetOwner()->GetActorLocation(), InteractionPrimitive.GetPrimitiveComponent()->GetComponentLocation()) : true;
 
@@ -185,17 +173,20 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 
 				if (ClosestInteractionPrimitive != nullptr)
 				{
-					Server_SetCurrentInteraction(ClosestInteractionPrimitive->GetInteractionComponent());
+					// Update it only it can be used
+					if (IsInteractionEnabled() && ClosestInteractionPrimitive->GetInteractionComponent()->IsInteractionEnabled())
+						Server_SetCurrentInteraction(ClosestInteractionPrimitive->GetInteractionComponent());
 
-					UE_LOG(LogActor, Warning, TEXT("DISTANCE! %f !"), FVector::Distance(GetOwner()->GetActorLocation(), ClosestInteractionPrimitive->GetPrimitiveComponent()->GetComponentLocation()));
-
-
-					// Turn off interaction UI
-					UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
+					//UE_LOG(LogActor, Warning, TEXT("DISTANCE! %f !"), FVector::Distance(GetOwner()->GetActorLocation(), ClosestInteractionPrimitive->GetPrimitiveComponent()->GetComponentLocation()));
+					
+					UBBQ_InteractionWidget* InteractionUI = (MyPC) ? MyPC->InteractionUI : nullptr;
 					if (InteractionUI)
 					{
+						bool bShowUIAsInteractive = (ClosestInteractionPrimitive->GetInteractionComponent()->IsInteractionEnabled())?
+							true: ClosestInteractionPrimitive->GetInteractionComponent()->CanShowUIWhenInactive();
+						
 						InteractionUI->SetVisibility(ESlateVisibility::HitTestInvisible);
-						InteractionUI->SetInteractionVisuals(ClosestInteractionPrimitive->GetInteractionComponent()->GetText(), ClosestInteractionPrimitive->GetInteractionComponent()->GetIcon());
+						InteractionUI->BP_SetInteractionVisuals(ClosestInteractionPrimitive->GetInteractionComponent()->GetText(), ClosestInteractionPrimitive->GetInteractionComponent()->GetIcon(), bShowUIAsInteractive);
 
 						FVector2D ScreenLocation;
 						MyPC->ProjectWorldLocationToScreen(ClosestInteractionPrimitive->GetPrimitiveComponent()->GetComponentLocation(), ScreenLocation);
@@ -203,18 +194,6 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 						ScreenLocation += FVector2D(CrosshairPosition.X - ScreenLocation.X, CrosshairPosition.Y - ScreenLocation.Y);
 						InteractionUI->SetPositionInViewport(ScreenLocation);
 					}
-
-#if 0
-					if (TraceResult.GetActor() != nullptr)
-					{
-						UE_LOG(LogActor, Warning, TEXT("SHOW UI FOR %s !"), *TraceResult.GetActor()->GetName());
-					}
-					if (TraceResult.GetComponent() != nullptr)
-					{
-						UE_LOG(LogActor, Warning, TEXT("SHOW UI FOR %s !"), *TraceResult.GetComponent()->GetName());
-					}
-#endif
-					// TODO:: pass the current interaction to the player controller!
 				}
 				else 
 				{
@@ -234,15 +213,13 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::DisableCurrentInteraction()
 {
-	// TODO:: Perhaps save the player controller right away
-	ASMP_PlayerController* const MyPC = Cast<ASMP_PlayerController>(GetOwner()->GetGameInstance()->GetFirstLocalPlayerController());
-	// No legal target, lets shut off the UI and the current interaction
-	UBBQ_InteractionWidget* InteractionUI = MyPC->InteractionUI;
+	UBBQ_InteractionWidget* InteractionUI = (MyPC) ? MyPC->InteractionUI : nullptr;
 	if (InteractionUI)
 	{
 		InteractionUI->SetVisibility(ESlateVisibility::Collapsed);
-		InteractionUI->SetInteractionVisuals(FText::GetEmpty(), nullptr);
-		Server_SetCurrentInteraction(nullptr);
+		InteractionUI->BP_SetInteractionVisuals(FText::GetEmpty(), nullptr);
+		if (IsInteractionEnabled())
+			Server_SetCurrentInteraction(nullptr);
 	}
 }
 
@@ -251,8 +228,8 @@ void UBBQ_InteractAreaComponent::Server_TryEndInteraction_Implementation()
 {
 	if (IsValid(CurrentInteraction))
 		CurrentInteraction->TryEndInteraction();
-	else
-		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
+	//else
+	//	UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
 }
 
 // -----------------------------------------------------------------------------------------
@@ -266,13 +243,13 @@ void UBBQ_InteractAreaComponent::Server_TryBeginInteraction_Implementation()
 {
 	if (IsValid(CurrentInteraction))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- Try interact with %s"), *CurrentInteraction->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- Try interact with %s"), *CurrentInteraction->GetName());
 		CurrentInteraction->TryBeginInteraction();
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
-	}
+// 	else
+// 	{
+// 		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
+// 	}
 }
 
 // -----------------------------------------------------------------------------------------
@@ -314,8 +291,6 @@ void UBBQ_InteractAreaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// TODO check when i finish the replication part
-	//DOREPLIFETIME(UBBQ_InteractAreaComponent, OverlappedInteractionPrimitives);
 	DOREPLIFETIME_CONDITION(UBBQ_InteractAreaComponent, OverlappedInteractionPrimitives, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UBBQ_InteractAreaComponent, CurrentInteraction, COND_OwnerOnly);
 }
