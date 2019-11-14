@@ -77,7 +77,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxInteractDistance = 350.0f;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 	ABasicMPCharacter* Instigator;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
