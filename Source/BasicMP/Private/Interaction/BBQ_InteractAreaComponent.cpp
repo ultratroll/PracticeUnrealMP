@@ -141,7 +141,11 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 
 			FVector2D CrosshairPosition = FVector2D(ViewportSizeX / 2, ViewportSizeY / 2);
 
-			bool bHit = MyPC->GetHitResultAtScreenPosition(CrosshairPosition, InteractionChannel, false, TraceResult);
+			FCollisionQueryParams QueryParams;
+			QueryParams.AddIgnoredComponent(this);
+			QueryParams.AddIgnoredActor(GetOwner());
+
+			bool bHit = MyPC->GetHitResultAtScreenPosition(CrosshairPosition, InteractionChannel, QueryParams, TraceResult);
 
 			if (bHit && TraceResult.GetComponent())
 			{
