@@ -3,9 +3,11 @@
 
 #include "BBQ_InteractionComponent.h"
 #include "Engine/Texture2D.h"
+#include "BasicMPCharacter.h"
 #include "UnrealNetwork.h"
 #include "Interaction/BBQ_InteractAreaComponent.h"
 #include "Core/SMP_PlayerController.h" // change this to BBQ
+
 
 // -----------------------------------------------------------------------------------------
 UBBQ_InteractionComponent::UBBQ_InteractionComponent()
@@ -19,9 +21,9 @@ UBBQ_InteractionComponent::UBBQ_InteractionComponent()
 }
 
 // -----------------------------------------------------------------------------------------
-void UBBQ_InteractionComponent::TryBeginInteraction()
+void UBBQ_InteractionComponent::TryBeginInteraction(ABasicMPCharacter* NewInstigator)
 {
-	Server_TryBeginInteraction();
+	Server_TryBeginInteraction(NewInstigator);
 }
 
 // -----------------------------------------------------------------------------------------
@@ -31,12 +33,13 @@ void UBBQ_InteractionComponent::TryEndInteraction()
 }
 
 // -----------------------------------------------------------------------------------------
-void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation()
+void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation(ABasicMPCharacter* NewInstigator)
 {
 	if (IsInteractionEnabled() && !IsInteracting())
 	{
-		bIsInteracting = true;
+		Instigator = NewInstigator;
 
+		bIsInteracting = true;
 		OnInteractionForServerDelegate.Broadcast(bIsInteracting);
 
 		// TODO: Removed temporaly, Netmulticast to clients
@@ -44,7 +47,7 @@ void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation()
 }
 
 // -----------------------------------------------------------------------------------------
-bool UBBQ_InteractionComponent::Server_TryBeginInteraction_Validate()
+bool UBBQ_InteractionComponent::Server_TryBeginInteraction_Validate(ABasicMPCharacter* NewInstigator)
 {
 	return true;
 }
@@ -210,6 +213,11 @@ void UBBQ_InteractionComponent::AddPrimitive(UPrimitiveComponent* PrimitiveCompo
 	}
 }
 
+ABasicMPCharacter* UBBQ_InteractionComponent::GetInstigator()
+{
+	return Instigator;
+}
+
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -277,5 +285,6 @@ void UBBQ_InteractionComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 	DOREPLIFETIME(UBBQ_InteractionComponent, bCanInteract);
 	DOREPLIFETIME(UBBQ_InteractionComponent, bIsInteracting);
+	DOREPLIFETIME(UBBQ_InteractionComponent, Instigator);
 }
 

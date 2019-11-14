@@ -9,6 +9,7 @@
 
 
 class UTexture2D;
+class ABasicMPCharacter;
 
 /** Delegate to report whenever an interactable begins or ends interaction. */
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FBBQ_OnInteraction, bool, bIsInteracting);
@@ -48,7 +49,7 @@ public:
 	int GetRequiredTeam() const { return RequiredTeam; }
 
 	UFUNCTION(BlueprintCallable)
-	void TryBeginInteraction();
+	void TryBeginInteraction(ABasicMPCharacter* NewInstigator);
 
 	UFUNCTION(BlueprintCallable)
 	void TryEndInteraction();
@@ -76,6 +77,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxInteractDistance = 350.0f;
 
+	UPROPERTY(Replicated)
+	ABasicMPCharacter* Instigator;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UTexture2D * InteractionIcon;
 
@@ -94,7 +98,7 @@ protected:
 	void SetupInteractionPrimitives();
 
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
-	void Server_TryBeginInteraction();
+	void Server_TryBeginInteraction(ABasicMPCharacter* NewInstigator);
 
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 	void Server_TryEndInteraction();
@@ -141,7 +145,10 @@ public:
 	bool IsInteracting() const { return bIsInteracting != 0; }
 
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	void BP_SetInteractionEnabled(bool bEnabled) { bCanInteract = bEnabled; }
+	void BP_SetInteractionEnabled(bool bEnabled) { bCanInteract = bEnabled; } // TODO : Shouldnt be BP_ !!
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	ABasicMPCharacter* GetInstigator();
 	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

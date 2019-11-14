@@ -8,6 +8,7 @@
 #include "Core/SMP_PlayerController.h"
 #include "UnrealNetwork.h"
 #include "Components/SphereComponent.h"
+#include "BasicMPCharacter.h"
 
 // -----------------------------------------------------------------------------------------
 UBBQ_InteractAreaComponent::UBBQ_InteractAreaComponent(const FObjectInitializer& ObjectInitializer)
@@ -248,7 +249,7 @@ void UBBQ_InteractAreaComponent::Server_TryBeginInteraction_Implementation()
 	if (IsValid(CurrentInteraction))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- Try interact with %s"), *CurrentInteraction->GetName());
-		CurrentInteraction->TryBeginInteraction();
+		CurrentInteraction->TryBeginInteraction(Cast<ABasicMPCharacter>(GetOwner()));
 	}
 // 	else
 // 	{
