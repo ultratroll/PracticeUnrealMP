@@ -103,6 +103,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 	void Server_TryEndInteraction();
 
+	// Makes sure the interaction is no longer interacting
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_ResetInteraction();
+
 protected:
 
 	virtual void BeginPlay() override;

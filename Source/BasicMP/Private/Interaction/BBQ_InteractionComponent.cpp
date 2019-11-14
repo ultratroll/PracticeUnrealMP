@@ -94,6 +94,16 @@ void UBBQ_InteractionComponent::SetupInteractionPrimitives()
 	}
 }
 
+void UBBQ_InteractionComponent::Server_ResetInteraction_Implementation()
+{
+	bIsInteracting = false;
+}
+
+bool UBBQ_InteractionComponent::Server_ResetInteraction_Validate()
+{
+	return true;
+}
+
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::BeginPlay()
 {
