@@ -191,7 +191,7 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 							true: ClosestInteractionPrimitive->GetInteractionComponent()->CanShowUIWhenInactive();
 						
 						InteractionUI->SetVisibility(ESlateVisibility::HitTestInvisible);
-						InteractionUI->BP_SetInteractionVisuals(ClosestInteractionPrimitive->GetInteractionComponent()->GetText(), ClosestInteractionPrimitive->GetInteractionComponent()->GetIcon(), bShowUIAsInteractive);
+						InteractionUI->BP_SetInteractionVisuals(ClosestInteractionPrimitive->GetInteractionComponent()->GetText(), ClosestInteractionPrimitive->GetInteractionComponent()->GetIcon(), bShowUIAsInteractive, ClosestInteractionPrimitive->GetInteractionComponent()->IsBeingHold(), ClosestInteractionPrimitive->GetInteractionComponent()->GetCurrentHoldTime()/ ClosestInteractionPrimitive->GetInteractionComponent()->GetHoldTime());
 
 						FVector2D ScreenLocation;
 						MyPC->ProjectWorldLocationToScreen(ClosestInteractionPrimitive->GetPrimitiveComponent()->GetComponentLocation(), ScreenLocation);
@@ -232,9 +232,12 @@ void UBBQ_InteractAreaComponent::DisableCurrentInteraction()
 void UBBQ_InteractAreaComponent::Server_TryEndInteraction_Implementation()
 {
 	if (IsValid(CurrentInteraction))
+	{
 		CurrentInteraction->TryEndInteraction();
-	//else
-	//	UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
+		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::Server_TryEndInteraction- Interactable to try ending!"));
+	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::Server_TryEndInteraction- No interactable to try ending!"));
 }
 
 // -----------------------------------------------------------------------------------------
