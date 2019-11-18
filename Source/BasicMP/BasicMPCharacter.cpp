@@ -99,6 +99,10 @@ void ABasicMPCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Interact", IE_Released, this, &ABasicMPCharacter::TryEndInteraction);
 }
 
+void ABasicMPCharacter::SetIsInteracting(bool bIsInteracting)
+{
+	InteractionArea->SetIsInteracting(bIsInteracting);
+}
 
 void ABasicMPCharacter::TryBeginInteraction()
 {

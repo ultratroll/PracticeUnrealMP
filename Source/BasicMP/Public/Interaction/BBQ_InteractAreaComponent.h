@@ -85,6 +85,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bCanInteract : 1;
 
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "Interactable")
+	uint8 bIsInteracting : 1;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bDebug : 1;
 
@@ -118,5 +121,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void SetIsInteracting(bool bInteracting);
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	bool GetIsInteracting() const { return bIsInteracting != 0; }
 };

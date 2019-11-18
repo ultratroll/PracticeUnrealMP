@@ -46,11 +46,22 @@ void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation(ABasic
 			
 			if (bIsOpenable)
 				bIsOpen = !(bIsOpen != 0);
+
+			if (IsValid(Instigator))
+				Instigator->SetIsInteracting(true);
+			else
+				UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractionComponent::Server_TryBeginInteraction- Instigator not valid"));
 		}
 		else
 		{
+			// In the case of interactions being marked as is interacting
+			bIsInteracting = true;
 			bIsBeingHold = true;
 			CurrentHoldTime = 0;
+			if (IsValid(Instigator))
+				Instigator->SetIsInteracting(true);
+			else
+				UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractionComponent::Server_TryBeginInteraction- Instigator not valid"));
 		}
 
 		// TODO: Removed temporaly, Netmulticast to clients
@@ -73,6 +84,10 @@ void UBBQ_InteractionComponent::Server_TryEndInteraction_Implementation()
 		{
 			bIsInteracting = false;
 			OnInteractionForServerDelegate.Broadcast(bIsInteracting);
+			if (IsValid(Instigator))
+				Instigator->SetIsInteracting(false);
+			else
+				UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractionComponent::Server_TryEndInteraction- Instigator not valid"));
 		}
 		// TODO: Removed temporaly, Netmulticast to clients
 	}
@@ -80,10 +95,15 @@ void UBBQ_InteractionComponent::Server_TryEndInteraction_Implementation()
 	if (IsInteractionEnabled() && bHoldToUse!= 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractionComponent::Server_TryEndInteraction- Interactable to try ending!"));
+		bIsInteracting = false;
 		bIsBeingHold = false;
 		CurrentHoldTime = 0;
 		bIsInteracting = false;
 		OnInteractionForServerDelegate.Broadcast(bIsInteracting);
+		if (IsValid(Instigator))
+			Instigator->SetIsInteracting(false);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractionComponent::Server_TryEndInteraction- Instigator not valid"));
 		// TODO: Removed temporaly, Netmulticast to clients
 	}
 }
@@ -121,6 +141,10 @@ void UBBQ_InteractionComponent::SetupInteractionPrimitives()
 void UBBQ_InteractionComponent::Server_ResetInteraction_Implementation()
 {
 	bIsInteracting = false;
+	if (IsValid(Instigator))
+		Instigator->SetIsInteracting(false);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("UUBBQ_InteractionComponent::Server_ResetInteraction- Instigator not valid"));
 }
 
 // -----------------------------------------------------------------------------------------
@@ -279,6 +303,10 @@ void UBBQ_InteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 				OnInteractionForServerDelegate.Broadcast(bIsInteracting);
 				bIsBeingHold = false;
 				CurrentHoldTime = 0;
+				if (IsValid(Instigator))
+					Instigator->SetIsInteracting(false);
+				else
+					UE_LOG(LogTemp, Warning, TEXT("TickComponent- Instigator not valid"));
 			}
 		}
 	}

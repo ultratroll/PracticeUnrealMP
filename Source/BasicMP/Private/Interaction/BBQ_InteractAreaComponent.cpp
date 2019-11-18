@@ -119,6 +119,11 @@ void UBBQ_InteractAreaComponent::TickComponent(float DeltaTime, ELevelTick TickT
 		UpdateClosestInteraction();
 }
 
+void UBBQ_InteractAreaComponent::SetIsInteracting(bool bInteracting)
+{
+	bIsInteracting= bInteracting;
+}
+
 // -----------------------------------------------------------------------------------------
 bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 {
@@ -189,9 +194,17 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 					{
 						bool bShowUIAsInteractive = (ClosestInteractionPrimitive->GetInteractionComponent()->IsInteractionEnabled())?
 							true: ClosestInteractionPrimitive->GetInteractionComponent()->CanShowUIWhenInactive();
+
+						// Only matters to show the progress bar if this area belongs to the instigator
+						bool bShouldShowHoldProgress = ClosestInteractionPrimitive->GetInteractionComponent()->IsBeingHold() && GetIsInteracting();
+
+						float CurrentProgress = 0.0f;
+
+						if (bShouldShowHoldProgress)
+							CurrentProgress = ClosestInteractionPrimitive->GetInteractionComponent()->GetCurrentHoldTime() / ClosestInteractionPrimitive->GetInteractionComponent()->GetHoldTime();
 						
 						InteractionUI->SetVisibility(ESlateVisibility::HitTestInvisible);
-						InteractionUI->BP_SetInteractionVisuals(ClosestInteractionPrimitive->GetInteractionComponent()->GetText(), ClosestInteractionPrimitive->GetInteractionComponent()->GetIcon(), bShowUIAsInteractive, ClosestInteractionPrimitive->GetInteractionComponent()->IsBeingHold(), ClosestInteractionPrimitive->GetInteractionComponent()->GetCurrentHoldTime()/ ClosestInteractionPrimitive->GetInteractionComponent()->GetHoldTime());
+						InteractionUI->BP_SetInteractionVisuals(ClosestInteractionPrimitive->GetInteractionComponent()->GetText(), ClosestInteractionPrimitive->GetInteractionComponent()->GetIcon(), bShowUIAsInteractive, bShouldShowHoldProgress, CurrentProgress);
 
 						FVector2D ScreenLocation;
 						MyPC->ProjectWorldLocationToScreen(ClosestInteractionPrimitive->GetPrimitiveComponent()->GetComponentLocation(), ScreenLocation);
@@ -301,5 +314,6 @@ void UBBQ_InteractAreaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 
 	DOREPLIFETIME_CONDITION(UBBQ_InteractAreaComponent, OverlappedInteractionPrimitives, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UBBQ_InteractAreaComponent, CurrentInteraction, COND_OwnerOnly);
+	DOREPLIFETIME(UBBQ_InteractAreaComponent, bIsInteracting);
 }
 
