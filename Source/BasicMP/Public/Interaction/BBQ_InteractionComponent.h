@@ -66,6 +66,12 @@ protected:
 	UPROPERTY(Replicated)
 	uint8 bIsInteracting : 1;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable|Hold")
+	uint8 bHoldToUse : 1;
+
+	UPROPERTY(Replicated, Transient)
+	uint8 bIsBeingHold : 1;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bShowUIWhenInactive : 1;
 
@@ -76,6 +82,12 @@ protected:
 	// Max distance the player is allowed to interact from.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxInteractDistance = 350.0f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable|Hold")
+	float HoldTime = 4.0f;
+
+	UPROPERTY(Replicated, Transient)
+	float CurrentHoldTime;
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 	ABasicMPCharacter* Instigator;
@@ -148,6 +160,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	bool IsInteracting() const { return bIsInteracting != 0; }
 
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	bool IsBeingHold() const { return bIsBeingHold != 0; }
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	float GetCurrentHoldTime() const { return CurrentHoldTime; }
+
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	float GetHoldTime() const { return HoldTime; }
+	
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void BP_SetInteractionEnabled(bool bEnabled) { bCanInteract = bEnabled; } // TODO : Shouldnt be BP_ !!
 

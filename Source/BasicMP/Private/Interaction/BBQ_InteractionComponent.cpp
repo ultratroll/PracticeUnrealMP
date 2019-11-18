@@ -12,7 +12,7 @@
 // -----------------------------------------------------------------------------------------
 UBBQ_InteractionComponent::UBBQ_InteractionComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	bReplicates = true;
 	bAutoAddPrimitives = false;
@@ -39,8 +39,16 @@ void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation(ABasic
 	{
 		Instigator = NewInstigator;
 
-		bIsInteracting = true;
-		OnInteractionForServerDelegate.Broadcast(bIsInteracting);
+		if (!bHoldToUse)
+		{
+			bIsInteracting = true;
+			OnInteractionForServerDelegate.Broadcast(bIsInteracting);
+		}
+		else
+		{
+			bIsBeingHold = true;
+			CurrentHoldTime = 0;
+		}
 
 		// TODO: Removed temporaly, Netmulticast to clients
 	}
@@ -55,12 +63,24 @@ bool UBBQ_InteractionComponent::Server_TryBeginInteraction_Validate(ABasicMPChar
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::Server_TryEndInteraction_Implementation()
 {
+	
 	if (IsInteractionEnabled() && IsInteracting())
 	{
+		if (!bHoldToUse)
+		{
+			bIsInteracting = false;
+			OnInteractionForServerDelegate.Broadcast(bIsInteracting);
+		}
+		// TODO: Removed temporaly, Netmulticast to clients
+	}
+
+	if (IsInteractionEnabled() && bHoldToUse!= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractionComponent::Server_TryEndInteraction- Interactable to try ending!"));
+		bIsBeingHold = false;
+		CurrentHoldTime = 0;
 		bIsInteracting = false;
-
 		OnInteractionForServerDelegate.Broadcast(bIsInteracting);
-
 		// TODO: Removed temporaly, Netmulticast to clients
 	}
 }
@@ -234,6 +254,23 @@ void UBBQ_InteractionComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+
+	if (GetOwner()->HasAuthority())
+	{
+		if (bIsBeingHold)
+		{
+			CurrentHoldTime += DeltaTime;
+
+			if (CurrentHoldTime > HoldTime)
+			{
+				// Holding did succeed
+				bIsInteracting = true;
+				OnInteractionForServerDelegate.Broadcast(bIsInteracting);
+				bIsBeingHold = false;
+				CurrentHoldTime = 0;
+			}
+		}
+	}
 }
 
 #if 0 //WITH_EDITOR
@@ -296,5 +333,10 @@ void UBBQ_InteractionComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	DOREPLIFETIME(UBBQ_InteractionComponent, bCanInteract);
 	DOREPLIFETIME(UBBQ_InteractionComponent, bIsInteracting);
 	DOREPLIFETIME(UBBQ_InteractionComponent, Instigator);
+
+	DOREPLIFETIME(UBBQ_InteractionComponent, bIsBeingHold);
+	DOREPLIFETIME(UBBQ_InteractionComponent, CurrentHoldTime);
+
+	
 }
 

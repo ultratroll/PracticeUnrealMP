@@ -113,6 +113,7 @@ void ABasicMPCharacter::TryEndInteraction()
 	if (IsLocallyControlled())
 	{
 		InteractionArea->Server_TryEndInteraction();
+		UE_LOG(LogTemp, Warning, TEXT("End the interaction"));
 	}
 }
 
