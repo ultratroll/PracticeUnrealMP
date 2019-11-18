@@ -43,6 +43,9 @@ void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation(ABasic
 		{
 			bIsInteracting = true;
 			OnInteractionForServerDelegate.Broadcast(bIsInteracting);
+			
+			if (bIsOpenable)
+				bIsOpen = !(bIsOpen != 0);
 		}
 		else
 		{
@@ -114,14 +117,22 @@ void UBBQ_InteractionComponent::SetupInteractionPrimitives()
 	}
 }
 
+// -----------------------------------------------------------------------------------------
 void UBBQ_InteractionComponent::Server_ResetInteraction_Implementation()
 {
 	bIsInteracting = false;
 }
 
+// -----------------------------------------------------------------------------------------
 bool UBBQ_InteractionComponent::Server_ResetInteraction_Validate()
 {
 	return true;
+}
+
+// -----------------------------------------------------------------------------------------
+void UBBQ_InteractionComponent::OnRep_IsOpen()
+{
+	OnInteractionForOpenableDelegate.Broadcast(bIsOpen);
 }
 
 // -----------------------------------------------------------------------------------------
@@ -336,7 +347,6 @@ void UBBQ_InteractionComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 
 	DOREPLIFETIME(UBBQ_InteractionComponent, bIsBeingHold);
 	DOREPLIFETIME(UBBQ_InteractionComponent, CurrentHoldTime);
-
-	
+	DOREPLIFETIME(UBBQ_InteractionComponent, bIsOpen);
 }
 

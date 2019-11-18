@@ -35,6 +35,10 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Interactable")
 	FBBQ_OnInteraction OnInteractionForClientDelegate;
 
+	/** To be called when the interaction is openable and its open state changes, only called on client (for stuff like opening the door). */
+	UPROPERTY(BlueprintAssignable, Category = "Interactable")
+	FBBQ_OnInteraction OnInteractionForOpenableDelegate;
+
 	// Sets default values for this component's properties
 	UBBQ_InteractionComponent();
 
@@ -66,7 +70,11 @@ protected:
 	UPROPERTY(Replicated)
 	uint8 bIsInteracting : 1;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable|Hold")
+	/** If true, this interactable is openable, and as such, saves its openable. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable|Settings")
+	uint8 bIsOpenable : 1;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable|Settings")
 	uint8 bHoldToUse : 1;
 
 	UPROPERTY(Replicated, Transient)
@@ -79,11 +87,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable")
 	uint8 bCheckForMaxDistance : 1;
 
+	/** If true, this object has been opened at least once. Only matters if opening is enabled. */
+	UPROPERTY(Replicated, ReplicatedUsing = OnRep_IsOpen, meta = (editcondition = "bIsOpenable"))
+	uint8 bIsOpen : 1;
+
 	// Max distance the player is allowed to interact from.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MaxInteractDistance = 350.0f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable|Hold")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Interactable|Settings")
 	float HoldTime = 4.0f;
 
 	UPROPERTY(Replicated, Transient)
@@ -118,6 +130,10 @@ protected:
 	// Makes sure the interaction is no longer interacting
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 	void Server_ResetInteraction();
+
+	/** To be called whenever the bIsOpen value changes, so that the openable object reflects its new state. */
+	UFUNCTION()
+	virtual void OnRep_IsOpen();
 
 protected:
 
