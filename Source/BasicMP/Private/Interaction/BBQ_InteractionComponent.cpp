@@ -47,6 +47,8 @@ void UBBQ_InteractionComponent::Server_TryBeginInteraction_Implementation(ABasic
 			if (bIsOpenable)
 				bIsOpen = !(bIsOpen != 0);
 
+			OnRep_IsOpen(); // For the server
+
 			if (IsValid(Instigator))
 				Instigator->SetIsInteracting(true);
 			else
