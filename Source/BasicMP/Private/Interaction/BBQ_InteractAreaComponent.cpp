@@ -73,30 +73,6 @@ void UBBQ_InteractAreaComponent::UnregisterNearbyInteraction(UBBQ_InteractionCom
 	}
 }
 
-#if 0
-// -----------------------------------------------------------------------------------------
-void UBBQ_InteractAreaComponent::TryBeginInteraction()
-{
-	if (IsValid(CurrentInteraction))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- Try interact with %s"), *CurrentInteraction->GetName());
-		CurrentInteraction->TryBeginInteraction();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
-	}
-}
-
-void UBBQ_InteractAreaComponent::TryEndInteraction()
-{
-	if (IsValid(CurrentInteraction))
-		CurrentInteraction->TryEndInteraction();
-	else
-		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- No interactable!"));
-}
-#endif
-
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::BeginPlay()
 {
@@ -115,7 +91,7 @@ void UBBQ_InteractAreaComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsInteractionEnabled() && MyPC && MyPC->IsLocalController())
+	if (IsInteractionEnabled() && MyPC && (GetOwnerRole() == ROLE_AutonomousProxy))
 		UpdateClosestInteraction();
 }
 
@@ -127,6 +103,42 @@ void UBBQ_InteractAreaComponent::SetIsInteracting(bool bInteracting)
 // -----------------------------------------------------------------------------------------
 bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 {
+	// There is already a current active interaction with at least a primitive ?
+	if (IsValid(CurrentActiveInteraction) && CurrentActiveInteraction->PrimitiveComponents.Num()>0 && CurrentActiveInteraction->IsBeingHold())
+	{
+		UBBQ_InteractionWidget* InteractionUI = (MyPC) ? MyPC->InteractionUI : nullptr;
+		if (InteractionUI)
+		{
+			bool bShowUIAsInteractive = (CurrentActiveInteraction->IsInteractionEnabled()) ?
+				true : CurrentActiveInteraction->CanShowUIWhenInactive();
+
+			// Only matters to show the progress bar if this area belongs to the instigator
+			bool bShouldShowHoldProgress = CurrentActiveInteraction->IsBeingHold() && GetIsInteracting();
+
+			float CurrentProgress = 0.0f;
+
+			if (bShouldShowHoldProgress)
+				CurrentProgress = CurrentActiveInteraction->GetCurrentHoldTime() / CurrentActiveInteraction->GetHoldTime();
+
+			InteractionUI->SetVisibility(ESlateVisibility::HitTestInvisible);
+			InteractionUI->BP_SetInteractionVisuals(CurrentActiveInteraction->GetText(), CurrentActiveInteraction->GetIcon(), bShowUIAsInteractive, bShouldShowHoldProgress, CurrentProgress);
+
+			FVector2D ScreenLocation;
+			MyPC->ProjectWorldLocationToScreen(CurrentActiveInteraction->PrimitiveComponents[0]->GetComponentLocation(), ScreenLocation); // location of the interaction?
+
+			// Viewport Size
+			int32 ViewportSizeX, ViewportSizeY;
+			MyPC->GetViewportSize(ViewportSizeX, ViewportSizeY);
+
+			FVector2D CrosshairPosition = FVector2D(ViewportSizeX / 2, ViewportSizeY / 2);
+
+			ScreenLocation += FVector2D(CrosshairPosition.X - ScreenLocation.X, CrosshairPosition.Y - ScreenLocation.Y);
+			InteractionUI->SetPositionInViewport(ScreenLocation);
+		}
+
+		return false;
+	}
+
 	if (IsInteractionEnabled() && OverlappedInteractionPrimitives.Num() > 0)
 	{	
 		if (MyPC)
@@ -140,6 +152,7 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 			});
 
 			FHitResult TraceResult(ForceInit);
+			FHitResult TraceResultVisibility(ForceInit);
 
 			// Viewport Size
 			int32 ViewportSizeX, ViewportSizeY;
@@ -152,6 +165,11 @@ bool UBBQ_InteractAreaComponent::UpdateClosestInteraction()
 			QueryParams.AddIgnoredActor(GetOwner());
 
 			bool bHit = MyPC->GetHitResultAtScreenPosition(CrosshairPosition, InteractionChannel, QueryParams, TraceResult);
+
+			//bool bHitVisibility = MyPC->GetHitResultAtScreenPosition(CrosshairPosition, ECC_Visibility, QueryParams, TraceResultVisibility);
+
+			//if (TraceResult.GetComponent() != TraceResultVisibility.GetComponent())
+			//	false;
 
 			if (bHit && TraceResult.GetComponent())
 			{
@@ -244,10 +262,13 @@ void UBBQ_InteractAreaComponent::DisableCurrentInteraction()
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::Server_TryEndInteraction_Implementation()
 {
-	if (IsValid(CurrentInteraction))
+	if (IsValid(CurrentActiveInteraction))
 	{
-		CurrentInteraction->TryEndInteraction();
+
+		CurrentActiveInteraction->TryEndInteraction();
 		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::Server_TryEndInteraction- Interactable to try ending!"));
+
+		CurrentActiveInteraction = nullptr; // THANOS
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::Server_TryEndInteraction- No interactable to try ending!"));
@@ -266,6 +287,9 @@ void UBBQ_InteractAreaComponent::Server_TryBeginInteraction_Implementation()
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("UBBQ_InteractAreaComponent::TryBeginInteraction- Try interact with %s"), *CurrentInteraction->GetName());
 		CurrentInteraction->TryBeginInteraction(Cast<ABasicMPCharacter>(GetOwner()));
+		
+		// How to check if suceeds the attempt AND THEN lets update the current active interaction !
+		CurrentActiveInteraction = CurrentInteraction; // THANOS
 	}
 // 	else
 // 	{
@@ -291,21 +315,17 @@ bool UBBQ_InteractAreaComponent::Server_SetCurrentInteraction_Validate(UBBQ_Inte
 	return true;
 }
 
-#if 0
 // -----------------------------------------------------------------------------------------
-void UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UBBQ_InteractAreaComponent::Server_SetCurrentActiveInteraction_Implementation(UBBQ_InteractionComponent* NewInteraction)
 {
-	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive() - Owner: %s with %s"), *(GetOwner()->GetFullName()), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
-	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnBeginOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
+	CurrentActiveInteraction = NewInteraction;
 }
 
 // -----------------------------------------------------------------------------------------
-void UBBQ_InteractAreaComponent::OnEndOverLapPrimitive(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+bool UBBQ_InteractAreaComponent::Server_SetCurrentActiveInteraction_Validate(UBBQ_InteractionComponent* NewInteraction)
 {
-	//UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnEndOverLapPrimitive() - Owner: %s with %s"), *(GetOwner()->GetFullName()), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
-	UE_LOG(LogActor, Warning, TEXT("UBBQ_InteractAreaComponent::OnEndOverLapPrimitive() - with %s"), *(OverlappedComponent != nullptr ? OtherComp->GetFullName() : "no component"));
+	return true;
 }
-#endif
 
 // -----------------------------------------------------------------------------------------
 void UBBQ_InteractAreaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -314,6 +334,7 @@ void UBBQ_InteractAreaComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 
 	DOREPLIFETIME_CONDITION(UBBQ_InteractAreaComponent, OverlappedInteractionPrimitives, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(UBBQ_InteractAreaComponent, CurrentInteraction, COND_OwnerOnly);
+	DOREPLIFETIME(UBBQ_InteractAreaComponent, CurrentActiveInteraction);
 	DOREPLIFETIME(UBBQ_InteractAreaComponent, bIsInteracting);
 }
 

@@ -79,8 +79,13 @@ protected:
 
 	//UBBQ_InteractionWidget* InteractionUI;
 
+	// Current interaction the player is looking at
 	UPROPERTY(Transient, Replicated)
 	UBBQ_InteractionComponent* CurrentInteraction;
+
+	// Current interaction the player is actually interacting with
+	UPROPERTY(Transient, Replicated)
+	UBBQ_InteractionComponent* CurrentActiveInteraction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interactable")
 	uint8 bCanInteract : 1;
@@ -104,6 +109,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 	void Server_SetCurrentInteraction(UBBQ_InteractionComponent* NewInteraction);
 
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+	void Server_SetCurrentActiveInteraction(UBBQ_InteractionComponent* NewInteraction);
+	
 	// Resets the current interaction and hides its UI
 	void DisableCurrentInteraction();
 

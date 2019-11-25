@@ -212,6 +212,7 @@ void UBBQ_InteractionComponent::CheckPrimitives()
 				{
 					PrimitiveComponents.Add(primitiveComponent);
 					primitiveComponent->SetCollisionResponseToChannel(InteractionChannel, ECR_Block);
+					primitiveComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 				}
 			}
 		}
@@ -229,6 +230,7 @@ void UBBQ_InteractionComponent::CheckPrimitives()
 			else
 			{
 				PrimitiveComponents[i]->SetCollisionResponseToChannel(InteractionChannel, ECR_Block);
+				PrimitiveComponents[i]->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 			}
 		}
 
@@ -268,6 +270,7 @@ void UBBQ_InteractionComponent::AddPrimitive(UPrimitiveComponent* PrimitiveCompo
 	{
 		PrimitiveComponents.AddUnique(PrimitiveComponent);
 		PrimitiveComponent->SetCollisionResponseToChannel(InteractionChannel, ECR_Block);
+		PrimitiveComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	}
 
 	if (GetOwnerRole() == ROLE_Authority)
@@ -328,6 +331,7 @@ void UBBQ_InteractionComponent::PostEditChangeProperty(struct FPropertyChangedEv
 			{
 				if (IsValid(primitive))
 					primitive->SetCollisionResponseToChannel(InteractionChannel, ECR_Block);
+				primitiveComponent->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 
 				bAutoAddPrimitives = false;
 			}
